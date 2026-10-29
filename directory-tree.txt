@@ -18,6 +18,8 @@ docs/specs/001-opencode-integration
 docs/specs/001-opencode-integration/spec.md
 docs/specs/README.md
 pyproject.toml
+scripts
+scripts/validate_opencode.py
 skills
 skills/spec-generator
 skills/spec-generator/SKILL.md
@@ -27,7 +29,11 @@ src/devpulse
 src/devpulse/__init__.py
 src/devpulse/application
 src/devpulse/application/__init__.py
+src/devpulse/application/config_service.py
 src/devpulse/application/monitor_service.py
+src/devpulse/config
+src/devpulse/config/__init__.py
+src/devpulse/config/settings.py
 src/devpulse/domain
 src/devpulse/domain/__init__.py
 src/devpulse/domain/errors.py
@@ -40,7 +46,12 @@ src/devpulse/integrations/opencode/__init__.py
 src/devpulse/integrations/opencode/client.py
 src/devpulse/integrations/opencode/integration.py
 src/devpulse/integrations/opencode/mapper.py
+src/devpulse/logging.py
 src/devpulse/main.py
+src/devpulse/storage
+src/devpulse/storage/__init__.py
+src/devpulse/storage/database.py
+src/devpulse/storage/repository.py
 src/devpulse/ui
 src/devpulse/ui/__init__.py
 src/devpulse/ui/main_window.py
@@ -48,5 +59,8 @@ src/devpulse/ui/worker.py
 tasks.md
 tests
 tests/test_client.py
+tests/test_integration_opencode.py
 tests/test_mapper.py
+tests/test_repository.py
+tests/test_settings.py
 tests/test_smoke.py

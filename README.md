@@ -48,7 +48,12 @@ DevPulse busca proporcionar esa visibilidad sin interrumpir el flujo de trabajo 
 - Ventana inicial funcional.
 - Modelos de dominio básicos.
 - Cliente de integración con OpenCode (lectura).
-- Pruebas básicas de mapeo y cliente.
+- Configuración y almacenamiento local (SQLite).
+- Restauración de posición y tamaño.
+- Conservación de datos históricos.
+- Sistema de registros seguro.
+- Actualización adaptativa básica.
+- Pruebas básicas e integración marcada.
 
 ## Tecnologías seleccionadas
 

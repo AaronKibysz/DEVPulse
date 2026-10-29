@@ -9,7 +9,7 @@
 - Sin cuentas, nube ni sincronización en v1.
 
 ## Estado actual
-Fase 1 avanzada. Modelos de dominio, cliente de integración con OpenCode, servicio de monitorización y UI básica implementados. 7 pruebas pasando.
+Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. 10 pruebas pasando, 1 omitida.
 
 ## Logros verificados
 - Entorno inspeccionado.

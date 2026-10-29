@@ -27,7 +27,7 @@
 - [ ] Diseñar el plan técnico.
 - [ ] Instalar y verificar PySide6.
 - [x] Crear la estructura de código del proyecto.
-- [ ] Implementar configuración y almacenamiento local.
+- [x] Implementar configuración y almacenamiento local.
 - [ ] Crear modelos internos.
 - [ ] Establecer el sistema de registros.
 - [x] Implementar prueba básica de importación.
@@ -50,6 +50,6 @@
 - [x] Crear servicio de monitorización.
 - [x] Integrar actualización básica en la UI.
 - [x] Añadir pruebas de mapeo y cliente.
-- [ ] Implementar configuración y almacenamiento local.
+- [x] Implementar configuración y almacenamiento local.
 - [ ] Implementar sistema de registros.
 - [ ] Mejorar manejo de errores y estados visuales.

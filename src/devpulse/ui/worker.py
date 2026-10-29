@@ -2,6 +2,9 @@ from PySide6.QtCore import QThread, Signal
 
 from devpulse.application.monitor_service import MonitorService
 from devpulse.integrations.opencode.integration import OpenCodeIntegration
+from devpulse.logging import get_logger
+
+logger = get_logger(__name__)
 
 
 class RefreshWorker(QThread):
@@ -18,6 +21,7 @@ class RefreshWorker(QThread):
             service = MonitorService(integration)
             instances = service.detect()
             if not instances:
+                logger.info("No OpenCode instance detected")
                 self.finished.emit([], "No OpenCode instance detected")
                 return
             instance = instances[0]
@@ -25,6 +29,8 @@ class RefreshWorker(QThread):
             active_ids = service.active_ids(instance)
             for session in sessions:
                 session.active = session.id in active_ids
+            logger.info("Refreshed %d sessions", len(sessions))
             self.finished.emit(sessions, None)
         except Exception as exc:  # noqa: BLE001
+            logger.warning("Refresh failed: %s", exc)
             self.finished.emit([], str(exc))
