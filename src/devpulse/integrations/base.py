@@ -22,5 +22,9 @@ class IntegrationProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_messages(self, instance: Instance, session_id: str) -> List[dict]:
+        raise NotImplementedError
+
+    @abstractmethod
     def get_context_metrics(self, session: Session) -> ContextMetrics:
         raise NotImplementedError

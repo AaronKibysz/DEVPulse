@@ -1,16 +1,23 @@
 from typing import Any, Dict, List, Optional
 
 from devpulse.domain.models import ContextMetrics, Model, Session, TokenUsage
+from devpulse.privacy import (
+    sanitize_text,
+    validate_model_payload,
+    validate_session_payload,
+    validate_token_payload,
+)
 
 
 def map_token_usage(data: Optional[Dict[str, Any]]) -> TokenUsage:
     if not data:
         return TokenUsage()
-    cache = data.get("cache") or {}
+    validated = validate_token_payload(data)
+    cache = validated.get("cache") or {}
     return TokenUsage(
-        input=int(data.get("input", 0) or 0),
-        output=int(data.get("output", 0) or 0),
-        reasoning=int(data.get("reasoning", 0) or 0),
+        input=int(validated.get("input", 0) or 0),
+        output=int(validated.get("output", 0) or 0),
+        reasoning=int(validated.get("reasoning", 0) or 0),
         cache_read=int(cache.get("read", 0) or 0),
         cache_write=int(cache.get("write", 0) or 0),
     )
@@ -19,11 +26,14 @@ def map_token_usage(data: Optional[Dict[str, Any]]) -> TokenUsage:
 def map_model(data: Optional[Dict[str, Any]]) -> Optional[Model]:
     if not data:
         return None
-    limit = data.get("limit") or {}
+    validated = validate_model_payload(data)
+    if validated is None:
+        return None
+    limit = validated.get("limit") or {}
     return Model(
-        id=str(data.get("id", "")),
-        provider_id=str(data.get("providerID", "")),
-        name=str(data.get("name", data.get("id", ""))),
+        id=sanitize_text(validated.get("id", ""), 128),
+        provider_id=sanitize_text(validated.get("providerID", ""), 128),
+        name=sanitize_text(validated.get("name", validated.get("id", "")), 128),
         context_limit=limit.get("context"),
         output_limit=limit.get("output"),
     )
@@ -32,16 +42,20 @@ def map_model(data: Optional[Dict[str, Any]]) -> Optional[Model]:
 def map_session(data: Dict[str, Any], model: Optional[Model] = None) -> Session:
     if not data:
         raise ValueError("Session data is required")
-    time_data = data.get("time") or {}
-    location = data.get("location") or {}
+    validated = validate_session_payload(data)
+    time_data = validated.get("time") or {}
+    location = validated.get("location") or {}
+    directory = location.get("directory")
+    if directory is not None:
+        directory = sanitize_text(directory, 512)
     return Session(
-        id=str(data["id"]),
-        project_id=str(data.get("projectID", "")),
-        title=str(data.get("title", "")),
-        directory=location.get("directory"),
+        id=sanitize_text(validated["id"], 128),
+        project_id=sanitize_text(validated.get("projectID", ""), 128),
+        title=sanitize_text(validated.get("title", ""), 256),
+        directory=directory,
         model=model,
-        tokens=map_token_usage(data.get("tokens")),
-        cost=float(data.get("cost", 0) or 0),
+        tokens=map_token_usage(validated.get("tokens")),
+        cost=float(validated.get("cost", 0) or 0),
         updated_at=time_data.get("updated"),
     )
 

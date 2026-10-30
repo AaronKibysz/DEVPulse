@@ -22,5 +22,6 @@ class MonitorService:
     def session_details(self, instance: Instance, session_id: str) -> Session:
         return self.integration.get_session(instance, session_id)
 
-    def context_for(self, session: Session, messages: list) -> ContextMetrics:
+    def context_for(self, instance: Instance, session: Session) -> ContextMetrics:
+        messages = self.integration.list_messages(instance, session.id)
         return calculate_context(messages, session.model)

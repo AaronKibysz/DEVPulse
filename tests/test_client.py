@@ -24,3 +24,13 @@ def test_localhost_only() -> None:
         assert "localhost" in str(exc).lower() or "127.0.0.1" in str(exc)
     else:
         raise AssertionError("Expected error for non-localhost URL")
+
+
+def test_localhost_lookalike_rejected() -> None:
+    for url in ("http://127.0.0.1.evil", "http://localhost.evil"):
+        try:
+            OpenCodeClient(url)
+        except Exception:
+            pass
+        else:
+            raise AssertionError(f"Expected error for {url}")

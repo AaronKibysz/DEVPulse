@@ -22,9 +22,9 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. 10 prueb
 - Stack aprobado y documentado.
 
 ## Próximos pasos
-1. Definir primera especificación funcional.
-2. Instalar y verificar PySide6.
-3. Crear esqueleto mínimo en Fase 1.
+1. Validar la integración real en Windows.
+2. Implementar modo compacto/expandido y bandeja del sistema.
+3. Evaluar empaquetado con PyInstaller.
 
 ## Archivos clave
 - `AGENTS.md`
@@ -39,4 +39,4 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. 10 prueb
 - Detección de múltiples instancias no verificada.
 
 ## Última actualización
-2026-10-29: documentación inicial y sistema de trabajo creados.
+2026-10-30: documentación alineada con el código existente y pruebas verificadas.

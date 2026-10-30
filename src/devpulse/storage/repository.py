@@ -65,6 +65,11 @@ class SnapshotRepository:
             )
         return result
 
+    def mark_historical(self) -> None:
+        cursor = self.database.connection().cursor()
+        cursor.execute("UPDATE session_snapshots SET is_historical = 1")
+        self.database.connection().commit()
+
     def last_fetched_at(self) -> Optional[int]:
         cursor = self.database.connection().cursor()
         cursor.execute("SELECT MAX(fetched_at) AS value FROM session_snapshots")

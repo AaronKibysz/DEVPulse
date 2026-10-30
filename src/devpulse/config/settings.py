@@ -15,6 +15,10 @@ class Settings:
     refresh_interval_seconds: int = 10
     selected_instance: Optional[str] = None
     selected_session: Optional[str] = None
+    opencode_url: Optional[str] = None
+    cache_sensitive_data: bool = True
+    sensitive_logs_authorized: bool = False
+    sensitive_log_pin_hash: Optional[str] = None
 
     @classmethod
     def default(cls) -> "Settings":

@@ -22,24 +22,24 @@
 
 ## Fase 1
 
-- [ ] Definir la especificación funcional inicial para la integración con OpenCode.
-- [ ] Aprobar la especificación.
+- [x] Definir la especificación funcional inicial para la integración con OpenCode.
+- [x] Aprobar la especificación.
 - [ ] Diseñar el plan técnico.
-- [ ] Instalar y verificar PySide6.
+- [x] Instalar y verificar PySide6.
 - [x] Crear la estructura de código del proyecto.
 - [x] Implementar configuración y almacenamiento local.
-- [ ] Crear modelos internos.
-- [ ] Establecer el sistema de registros.
+- [x] Crear modelos internos.
+- [x] Establecer el sistema de registros.
 - [x] Implementar prueba básica de importación.
 - [x] Crear una ventana inicial funcional.
 
 ## Seguridad
 
-- [ ] Crear módulo de validación y sanitización.
-- [ ] Implementar gestión segura de credenciales.
-- [ ] Asegurar que los logs no contengan secretos.
-- [ ] Validar respuestas de la API de OpenCode.
-- [ ] Restringir conexiones a localhost.
+- [x] Crear módulo de validación y sanitización.
+- [x] Implementar gestión segura de credenciales.
+- [x] Asegurar que los logs no contengan secretos.
+- [x] Validar respuestas de la API de OpenCode.
+- [x] Restringir conexiones a localhost.
 
 ## Fase 1 — Integración inicial
 
@@ -51,5 +51,5 @@
 - [x] Integrar actualización básica en la UI.
 - [x] Añadir pruebas de mapeo y cliente.
 - [x] Implementar configuración y almacenamiento local.
-- [ ] Implementar sistema de registros.
-- [ ] Mejorar manejo de errores y estados visuales.
+- [x] Implementar sistema de registros.
+- [x] Mejorar manejo de errores y estados visuales.

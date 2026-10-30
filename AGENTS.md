@@ -21,7 +21,7 @@ Stack principal aprobado para la primera versión: Python + PySide6. Arquitectur
 
 La estructura definitiva se documentará a medida que se cree. No describir directorios previstos como si ya existieran.
 
-Estado actual: el repositorio contiene la documentación inicial, la constitución, el sistema de especificaciones y el sistema de trabajo. No existe todavía código de aplicación.
+Estado actual: el repositorio contiene la documentación inicial, la constitución, el sistema de especificaciones, el sistema de trabajo y un esqueleto mínimo de aplicación con pruebas básicas.
 
 ## Estilo
 
@@ -70,6 +70,8 @@ Las responsabilidades `plan`, `agent` y `test` se documentan como roles de traba
 Los comandos reales de instalación, desarrollo, pruebas y compilación se documentarán cuando exista el proyecto ejecutable.
 
 No registrar comandos como verificados hasta haberlos ejecutado.
+
+Comando verificado: `python -m pytest` (10 pruebas pasando, 1 omitida).
 
 ## Al terminar cualquier tarea
 

@@ -6,9 +6,9 @@ DevPulse muestra información relevante sobre sesiones, modelos, tokens, context
 
 ## Estado actual del desarrollo
 
-Proyecto en **Fase 0**: inspección del entorno, investigación de las interfaces de OpenCode, definición de arquitectura y creación de la documentación inicial.
+Proyecto en **Fase 1 avanzada**: existe un esqueleto mínimo de aplicación con PySide6, integración inicial con OpenCode, configuración, almacenamiento local y pruebas básicas.
 
-No existe todavía código de aplicación. No hay instalador ni ejecutable disponible.
+No hay instalador ni ejecutable distribuible disponible todavía.
 
 ## Problema que resuelve
 
@@ -87,7 +87,7 @@ Pendiente. La configuración se diseñará durante las fases posteriores.
 
 ## Uso
 
-Pendiente. La aplicación aún no es ejecutable.
+La aplicación puede ejecutarse desde el código fuente con las dependencias instaladas. La configuración de OpenCode se detecta automáticamente cuando es posible; si no, debe completarse en la pestaña de configuración.
 
 ## Comandos de desarrollo
 
@@ -95,7 +95,7 @@ Pendiente de verificar. Se documentarán cuando exista el proyecto ejecutable.
 
 ## Ejecución de pruebas
 
-Pendiente de verificar. Se utilizará `pytest` para las pruebas automatizadas de Python.
+Verificado parcialmente. Ejecutar `pytest` desde la raíz del repositorio. Resultado actual: 10 pruebas pasando y 1 omitida.
 
 ## Compilación del instalador
 
@@ -110,7 +110,7 @@ Ver `directory-tree.txt` para la estructura actual del repositorio.
 - OpenCode Desktop no está disponible en el entorno de desarrollo actual.
 - La detección de múltiples instancias simultáneas no se ha verificado completamente.
 - La cuota restante del servicio no está disponible en la API observada.
-- PySide6 no está instalado todavía.
+- PySide6 está instalado y verificado en el entorno de desarrollo.
 - Tauri no es viable sin instalar Rust.
 
 ## Privacidad y seguridad

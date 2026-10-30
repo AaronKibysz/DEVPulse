@@ -40,10 +40,13 @@ class OpenCodeIntegration(IntegrationProvider):
         models = {m.get("id"): map_model(m) for m in self._models()}
         model = models.get((item.get("model") or {}).get("id"))
         session = map_session(item, model)
-        messages_response = self.client.list_messages(session_id)
-        messages = messages_response.get("data", []) if isinstance(messages_response, dict) else []
         session.tokens = map_token_usage(item.get("tokens"))
         return session
+
+    def list_messages(self, instance: Instance, session_id: str) -> List[dict]:
+        response = self.client.list_messages(session_id)
+        items = response.get("data", []) if isinstance(response, dict) else []
+        return items if isinstance(items, list) else []
 
     def get_context_metrics(self, session: Session) -> ContextMetrics:
         if not session.model:

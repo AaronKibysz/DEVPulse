@@ -1,6 +1,7 @@
 from PySide6.QtCore import QThread, Signal
 
 from devpulse.application.monitor_service import MonitorService
+from devpulse.domain.models import ContextMetrics
 from devpulse.integrations.opencode.integration import OpenCodeIntegration
 from devpulse.logging import get_logger
 
@@ -29,6 +30,11 @@ class RefreshWorker(QThread):
             active_ids = service.active_ids(instance)
             for session in sessions:
                 session.active = session.id in active_ids
+                try:
+                    session.context_metrics = service.context_for(instance, session)
+                except Exception as exc:  # noqa: BLE001
+                    logger.warning("Context calculation failed for %s: %s", session.id, exc)
+                    session.context_metrics = ContextMetrics(source="unavailable")
             logger.info("Refreshed %d sessions", len(sessions))
             self.finished.emit(sessions, None)
         except Exception as exc:  # noqa: BLE001

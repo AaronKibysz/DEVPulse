@@ -14,6 +14,9 @@ class Database:
         self._connection = sqlite3.connect(self.path)
         self._connection.row_factory = sqlite3.Row
         self._initialize()
+        from devpulse.privacy import secure_file_permissions
+
+        secure_file_permissions(str(self.path))
 
     def _initialize(self) -> None:
         cursor = self._connection.cursor()

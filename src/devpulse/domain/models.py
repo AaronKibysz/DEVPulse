@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -31,6 +33,7 @@ class Session:
     cost: float = 0.0
     active: bool = False
     updated_at: Optional[int] = None
+    context_metrics: Optional[ContextMetrics] = None
 
 
 @dataclass

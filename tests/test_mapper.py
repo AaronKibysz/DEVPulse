@@ -50,3 +50,19 @@ def test_calculate_context() -> None:
     assert metrics.limit_tokens == 100
     assert metrics.remaining_tokens == 85
     assert metrics.source == "calculated"
+
+
+def test_calculate_context_unavailable_without_assistant() -> None:
+    metrics = calculate_context([], None)
+    assert metrics.source == "unavailable"
+    assert metrics.used_tokens is None
+
+
+def test_calculate_context_without_limit() -> None:
+    model = map_model({"id": "m1", "providerID": "p1", "name": "Model"})
+    messages = [{"type": "assistant", "tokens": {"input": 5, "output": 1, "reasoning": 0, "cache": {"read": 2, "write": 0}}}]
+    metrics = calculate_context(messages, model)
+    assert metrics.used_tokens == 7
+    assert metrics.limit_tokens is None
+    assert metrics.percentage is None
+    assert metrics.source == "calculated"

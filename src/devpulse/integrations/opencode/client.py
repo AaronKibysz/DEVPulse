@@ -7,9 +7,9 @@ from devpulse.domain.errors import IntegrationError
 
 class OpenCodeClient:
     def __init__(self, base_url: str, password: Optional[str] = None) -> None:
-        if not base_url.startswith("http://127.0.0.1") and not base_url.startswith("http://localhost"):
-            raise IntegrationError("Only localhost connections are allowed")
-        self.base_url = base_url.rstrip("/")
+        from devpulse.privacy import validate_base_url
+
+        self.base_url = validate_base_url(base_url)
         self.password = password
 
     def _headers(self) -> dict:
@@ -27,6 +27,8 @@ class OpenCodeClient:
                 f"{self.base_url}{path}",
                 headers=self._headers(),
                 timeout=10.0,
+                follow_redirects=False,
+                trust_env=False,
                 **kwargs,
             )
             response.raise_for_status()
