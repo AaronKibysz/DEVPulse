@@ -9,7 +9,7 @@
 - Sin cuentas, nube ni sincronización en v1.
 
 ## Estado actual
-Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. 10 pruebas pasando, 1 omitida.
+Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualización avanzada y fuente CLI implementadas. 31 pruebas pasando, 1 omitida.
 
 ## Logros verificados
 - Entorno inspeccionado.
@@ -20,10 +20,11 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. 10 prueb
 - API de OpenCode v2.1.2 verificada.
 - Disponibilidad de métricas documentada.
 - Stack aprobado y documentado.
+- Visualización avanzada con historial temporal en memoria.
 
 ## Próximos pasos
 1. Validar la integración real en Windows.
-2. Implementar modo compacto/expandido y bandeja del sistema.
+2. Probar modo compacto/expandido y bandeja del sistema.
 3. Evaluar empaquetado con PyInstaller.
 
 ## Archivos clave

@@ -15,6 +15,7 @@ class Settings:
     refresh_interval_seconds: int = 10
     selected_instance: Optional[str] = None
     selected_session: Optional[str] = None
+    data_source: str = "auto"
     opencode_url: Optional[str] = None
     cache_sensitive_data: bool = True
     sensitive_logs_authorized: bool = False

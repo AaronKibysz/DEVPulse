@@ -53,6 +53,9 @@ DevPulse busca proporcionar esa visibilidad sin interrumpir el flujo de trabajo 
 - Conservación de datos históricos.
 - Sistema de registros seguro.
 - Actualización adaptativa básica.
+- Fuente híbrida HTTP/CLI con fallback automático.
+- Visualización avanzada con gráficos e historial temporal en memoria.
+- Gráfico de torta con porcentaje numérico.
 - Pruebas básicas e integración marcada.
 
 ## Tecnologías seleccionadas
@@ -87,7 +90,19 @@ Pendiente. La configuración se diseñará durante las fases posteriores.
 
 ## Uso
 
-La aplicación puede ejecutarse desde el código fuente con las dependencias instaladas. La configuración de OpenCode se detecta automáticamente cuando es posible; si no, debe completarse en la pestaña de configuración.
+La aplicación puede ejecutarse desde el código fuente con las dependencias instaladas. Para ejecutar DevPulse sin consola:
+
+```powershell
+.\scripts\run_devpulse.ps1
+```
+
+Para monitorizar OpenCode en vivo, inicia primero el servidor local:
+
+```powershell
+.\scripts\start_opencode_server.ps1
+```
+
+La configuración de OpenCode se detecta automáticamente cuando es posible; si no, debe completarse en la pestaña de configuración.
 
 ## Comandos de desarrollo
 
@@ -95,7 +110,7 @@ Pendiente de verificar. Se documentarán cuando exista el proyecto ejecutable.
 
 ## Ejecución de pruebas
 
-Verificado parcialmente. Ejecutar `pytest` desde la raíz del repositorio. Resultado actual: 10 pruebas pasando y 1 omitida.
+Verificado parcialmente. Ejecutar `pytest` desde la raíz del repositorio. Resultado actual: 31 pruebas pasando y 1 omitida.
 
 ## Compilación del instalador
 

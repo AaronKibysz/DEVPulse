@@ -24,7 +24,7 @@
 
 - [x] Definir la especificación funcional inicial para la integración con OpenCode.
 - [x] Aprobar la especificación.
-- [ ] Diseñar el plan técnico.
+- [x] Diseñar el plan técnico.
 - [x] Instalar y verificar PySide6.
 - [x] Crear la estructura de código del proyecto.
 - [x] Implementar configuración y almacenamiento local.
@@ -41,7 +41,12 @@
 - [x] Validar respuestas de la API de OpenCode.
 - [x] Restringir conexiones a localhost.
 
-## Fase 1 — Integración inicial
+## Fase 1 — Visualización avanzada
+
+- [x] Crear Spec 002.
+- [x] Implementar gráficos de tokens, contexto y tendencia temporal en memoria.
+- [x] Implementar modo compacto con gráfico mínimo.
+- [x] Añadir pruebas de historial y gráficos.
 
 - [x] Crear modelos de dominio.
 - [x] Crear interfaz de integración.
@@ -52,4 +57,15 @@
 - [x] Añadir pruebas de mapeo y cliente.
 - [x] Implementar configuración y almacenamiento local.
 - [x] Implementar sistema de registros.
-- [x] Mejorar manejo de errores y estados visuales.
+## Fase 1 — Fuente CLI e híbrida
+
+- [x] Implementar proveedor CLI de OpenCode.
+- [x] Implementar modo auto (HTTP con fallback a CLI).
+- [x] Ocultar consolas de subprocesos en Windows.
+- [x] Añadir gráfico de torta con porcentaje numérico.
+
+## Fase 1 � UX y empaquetado
+
+- [x] Implementar modo compacto/expandido.
+- [x] Implementar bandeja del sistema.
+- [x] Crear spec y script de empaquetado con PyInstaller.

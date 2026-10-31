@@ -49,7 +49,7 @@ DevPulse será una aplicación de escritorio local construida con Python y PySid
 
 ## Integración con OpenCode
 
-La integración inicial utilizará la API HTTP oficial de OpenCode como fuente principal, complementada por la CLI y los eventos SSE cuando aporten valor.
+La integración inicial utilizará la API HTTP oficial de OpenCode como fuente principal, complementada por la CLI y los eventos SSE cuando aporten valor. Si no hay servidor HTTP disponible, DevPulse puede usar la CLI oficial de OpenCode como fuente alternativa en modo automático.
 
 Fuentes verificadas: ver `docs/research/opencode-api-summary.md`.
 
