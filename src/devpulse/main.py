@@ -6,12 +6,13 @@ from PySide6.QtWidgets import QApplication
 
 from devpulse.application.config_service import ConfigService
 from devpulse.ui.main_window import MainWindow
-
+from devpulse.ui.theme import apply_theme
 
 def main() -> int:
     configure_logging()
     app = QApplication(sys.argv)
     config_service = ConfigService()
+    apply_theme(app, config_service.settings)
     window = MainWindow(config_service)
     window.show()
     result = app.exec()

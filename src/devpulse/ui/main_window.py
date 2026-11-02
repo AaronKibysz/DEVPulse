@@ -1,10 +1,12 @@
-from PySide6.QtCore import Qt, QTimer
-from PySide6.QtGui import QAction, QIcon, QPainter, QPixmap, QColor
+from PySide6.QtCore import Qt, QTimer, QPropertyAnimation, QEasingCurve, QSize
+from PySide6.QtGui import QAction, QIcon, QPainter, QPixmap, QColor, QShortcut, QKeySequence
 import pyqtgraph as pg
 from PySide6.QtWidgets import (
+    QApplication,
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
+    QGridLayout,
     QLabel,
     QPushButton,
     QPlainTextEdit,
@@ -17,6 +19,7 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QMenu,
     QSystemTrayIcon,
+    QFrame,
 )
 
 from devpulse.application.config_service import ConfigService
@@ -28,7 +31,14 @@ from devpulse.ui.charts import (
     token_bar_values,
 )
 from devpulse.ui.pie_chart import PieChartWidget
+from devpulse.ui.theme import apply_theme, apply_glow, chart_colors
 from devpulse.ui.worker import RefreshWorker
+
+
+class CardFrame(QFrame):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.setProperty("card", True)
 
 
 class MainWindow(QWidget):
@@ -77,13 +87,19 @@ class MainWindow(QWidget):
         self._load_cached_data()
         self._confirm_detected_config()
         self._apply_mode()
+        self._apply_chart_theme()
+        self._apply_glow_effects()
+        self._setup_shortcuts()
         self._setup_tray()
 
     def _build_monitor_tab(self) -> None:
         self.status_label = QLabel("Status: ready")
+        self.status_label.setToolTip("Connection status")
         self.last_updated_label = QLabel("Last updated: never")
         self.refresh_button = QPushButton("Refresh")
+        self.refresh_button.setToolTip("Refresh OpenCode data (Ctrl+R)")
         self.mode_button = QPushButton("Toggle mode")
+        self.mode_button.setToolTip("Switch compact/expanded mode (Ctrl+M)")
         self.instance_label = QLabel("Instance:")
         self.instance_combo = QComboBox()
         self.instance_combo.setEnabled(False)
@@ -91,32 +107,66 @@ class MainWindow(QWidget):
         self.session_combo = QComboBox()
         self.session_combo.setEnabled(False)
         self.details_label = QLabel("No session selected")
+        self.details_label.setWordWrap(True)
         self.compact_chart_view = PieChartWidget()
         self.compact_chart_view.setMinimumHeight(120)
         self.context_pie_view = PieChartWidget()
-        self.context_pie_view.setMinimumHeight(160)
-        self.token_chart_view = pg.PlotWidget()
-        self.token_chart_view.setMinimumHeight(180)
+        self.context_pie_view.setMinimumHeight(130)
         self.trend_chart_view = pg.PlotWidget()
-        self.trend_chart_view.setMinimumHeight(180)
+        self.trend_chart_view.setMinimumHeight(120)
+        self.token_stats_label = QLabel("Tokens: -")
+        self.token_stats_label.setWordWrap(True)
+        self.cost_label = QLabel("Cost: -")
+        self.trend_status_label = QLabel("")
+        self.trend_status_label.setWordWrap(True)
         self.output = QPlainTextEdit()
         self.output.setReadOnly(True)
+        self.output.setMinimumHeight(70)
 
-        layout = QVBoxLayout(self.monitor_tab)
-        layout.addWidget(self.status_label)
-        layout.addWidget(self.last_updated_label)
-        layout.addWidget(self.refresh_button)
-        layout.addWidget(self.mode_button)
-        layout.addWidget(self.instance_label)
-        layout.addWidget(self.instance_combo)
-        layout.addWidget(self.session_label)
-        layout.addWidget(self.session_combo)
-        layout.addWidget(self.details_label)
-        layout.addWidget(self.compact_chart_view)
-        layout.addWidget(self.context_pie_view)
-        layout.addWidget(self.token_chart_view)
-        layout.addWidget(self.trend_chart_view)
-        layout.addWidget(self.output)
+        root = QVBoxLayout(self.monitor_tab)
+        root.setContentsMargins(6, 6, 6, 6)
+        root.setSpacing(6)
+
+        header_card = CardFrame()
+        header_layout = QHBoxLayout(header_card)
+        status_box = QVBoxLayout()
+        status_box.addWidget(self.status_label)
+        status_box.addWidget(self.last_updated_label)
+        header_layout.addLayout(status_box, 1)
+        actions = QVBoxLayout()
+        actions.addWidget(self.refresh_button)
+        actions.addWidget(self.mode_button)
+        header_layout.addLayout(actions)
+        root.addWidget(header_card)
+
+        session_card = CardFrame()
+        session_layout = QVBoxLayout(session_card)
+        session_layout.addWidget(self.instance_label)
+        session_layout.addWidget(self.instance_combo)
+        session_layout.addWidget(self.session_label)
+        session_layout.addWidget(self.session_combo)
+        session_layout.addWidget(self.details_label)
+        root.addWidget(session_card)
+
+        stats_card = CardFrame()
+        stats_layout = QVBoxLayout(stats_card)
+        stats_layout.addWidget(self.token_stats_label)
+        stats_layout.addWidget(self.cost_label)
+        root.addWidget(stats_card)
+
+        charts_card = CardFrame()
+        charts_layout = QVBoxLayout(charts_card)
+        charts_layout.setSpacing(6)
+        charts_layout.addWidget(self.compact_chart_view)
+        charts_layout.addWidget(self.context_pie_view)
+        charts_layout.addWidget(self.trend_chart_view)
+        charts_layout.addWidget(self.trend_status_label)
+        root.addWidget(charts_card, 1)
+
+        log_card = CardFrame()
+        log_layout = QVBoxLayout(log_card)
+        log_layout.addWidget(self.output)
+        root.addWidget(log_card)
 
     def _build_config_tab(self) -> None:
         settings = self.config_service.settings
@@ -135,9 +185,31 @@ class MainWindow(QWidget):
         self.data_source_combo = QComboBox()
         self.data_source_combo.addItems(["auto", "http", "cli"])
         self.data_source_combo.setCurrentText(settings.data_source)
+
+        self.theme_combo = QComboBox()
+        self.theme_combo.addItems(["classic", "neon"])
+        self.theme_combo.setCurrentText(settings.theme_mode)
+        self.accent_combo = QComboBox()
+        self.accent_combo.addItem("Magenta", "#ff00ff")
+        self.accent_combo.addItem("Cyan", "#00f5ff")
+        self.accent_combo.addItem("Green", "#39ff14")
+        index = self.accent_combo.findData(settings.accent_color)
+        if index >= 0:
+            self.accent_combo.setCurrentIndex(index)
+        self.glow_combo = QComboBox()
+        self.glow_combo.addItems(["subtle", "medium", "strong"])
+        self.glow_combo.setCurrentText(settings.glow_strength)
+        self.font_combo = QComboBox()
+        self.font_combo.addItems(["small", "medium", "large"])
+        self.font_combo.setCurrentText(settings.font_size)
+        self.reduce_motion_checkbox = QCheckBox("Reduce motion")
+        self.reduce_motion_checkbox.setChecked(settings.reduce_motion)
+
         self.save_config_button = QPushButton("Save configuration")
 
         layout = QVBoxLayout(self.config_tab)
+        layout.setContentsMargins(8, 8, 8, 8)
+        layout.setSpacing(8)
         layout.addWidget(QLabel("OpenCode URL"))
         layout.addWidget(self.url_edit)
         layout.addWidget(QLabel("Password (optional, not stored in plain text)"))
@@ -148,6 +220,17 @@ class MainWindow(QWidget):
         layout.addWidget(self.sensitive_logs_checkbox)
         layout.addWidget(QLabel("Data source"))
         layout.addWidget(self.data_source_combo)
+
+        layout.addWidget(QLabel("Theme"))
+        layout.addWidget(self.theme_combo)
+        layout.addWidget(QLabel("Accent color"))
+        layout.addWidget(self.accent_combo)
+        layout.addWidget(QLabel("Glow strength"))
+        layout.addWidget(self.glow_combo)
+        layout.addWidget(QLabel("Font size"))
+        layout.addWidget(self.font_combo)
+        layout.addWidget(self.reduce_motion_checkbox)
+
         layout.addWidget(self.save_config_button)
         layout.addStretch(1)
 
@@ -266,7 +349,10 @@ class MainWindow(QWidget):
         selected_session = next((item for item in sessions if item.id == selected_id), None)
         if selected_session is not None:
             self.metric_history.add(sample_from_session(selected_session))
-        self.footer_label.setText("Connected to OpenCode.")
+        if any(getattr(instance, "id", "") == "opencode-cli" for instance in instances):
+            self.footer_label.setText("Connected via CLI. Context % may be unavailable because CLI exports do not expose model limits.")
+        else:
+            self.footer_label.setText("Connected to OpenCode.")
 
     def _populate_session_combo(self) -> None:
         self.session_combo.blockSignals(True)
@@ -389,7 +475,15 @@ class MainWindow(QWidget):
         self.config_service.settings.cache_sensitive_data = self.cache_sensitive_checkbox.isChecked()
         self.config_service.settings.sensitive_logs_authorized = authorize_logs
         self.config_service.settings.sensitive_log_pin_hash = pin_hash if authorize_logs else None
+        self.config_service.settings.theme_mode = self.theme_combo.currentText()
+        self.config_service.settings.accent_color = self.accent_combo.currentData()
+        self.config_service.settings.glow_strength = self.glow_combo.currentText()
+        self.config_service.settings.font_size = self.font_combo.currentText()
+        self.config_service.settings.reduce_motion = self.reduce_motion_checkbox.isChecked()
         self.config_service.save_settings()
+        apply_theme(QApplication.instance(), self.config_service.settings)
+        self._apply_chart_theme()
+        self._apply_glow_effects()
         self._refresh_interval = interval * 1000
         self._timer.setInterval(self._refresh_interval)
         self.password_edit.clear()
@@ -432,12 +526,19 @@ class MainWindow(QWidget):
         compact = self.config_service.settings.compact_mode
         self.compact_chart_view.setVisible(compact)
         self.context_pie_view.setVisible(not compact)
-        self.token_chart_view.setVisible(not compact)
         self.trend_chart_view.setVisible(not compact)
-        if compact:
-            self.resize(360, 300)
-        else:
-            self.resize(520, 620)
+        self.trend_status_label.setVisible(not compact)
+        target = QSize(300, 220) if compact else QSize(360, 420)
+        if self.config_service.settings.reduce_motion:
+            self.resize(target)
+            return
+        animation = QPropertyAnimation(self, b"size")
+        animation.setDuration(180)
+        animation.setStartValue(self.size())
+        animation.setEndValue(target)
+        animation.setEasingCurve(QEasingCurve.OutCubic)
+        animation.start()
+        self._mode_animation = animation
 
     def _setup_tray(self) -> None:
         if not QSystemTrayIcon.isSystemTrayAvailable():
@@ -463,48 +564,106 @@ class MainWindow(QWidget):
         self._tray_icon.show()
 
     def _update_charts(self, session) -> None:
-        self._update_token_chart(session)
+        self._update_token_stats(session)
         self._update_compact_chart(session)
         self._update_context_pie(session)
         self._update_trend_chart(session)
 
-    def _update_token_chart(self, session) -> None:
-        self.token_chart_view.clear()
-        categories, values = token_bar_values(session)
-        x = list(range(len(values)))
-        bar = pg.BarGraphItem(x=x, height=values, width=0.6, brush="#2563eb")
-        self.token_chart_view.addItem(bar)
-        self.token_chart_view.getAxis("bottom").setTicks([list(enumerate(categories))])
-        self.token_chart_view.setTitle("Tokens")
-        self.token_chart_view.showGrid(x=True, y=True, alpha=0.3)
+    def _update_token_stats(self, session) -> None:
+        colors = chart_colors(self.config_service.settings)
+        self.token_stats_label.setText(
+            f"Tokens: in={session.tokens.input}  out={session.tokens.output}  "
+            f"reasoning={session.tokens.reasoning}  cache={session.tokens.cache_read}"
+        )
+        self.cost_label.setText(f"Cost: {session.cost:.4f}")
+        self.token_stats_label.setStyleSheet(f"color: {colors['text']};")
+        self.cost_label.setStyleSheet(f"color: {colors['text']};")
 
     def _update_compact_chart(self, session) -> None:
+        colors = chart_colors(self.config_service.settings)
         used, limit, _percentage = context_values(session)
         self.compact_chart_view.set_values(used, limit)
         self.compact_chart_view.set_title("Context")
+        self.compact_chart_view.set_colors(colors["used"], colors["free"], colors["text"])
 
     def _update_context_pie(self, session) -> None:
-        used, limit, _percentage = context_values(session)
+        colors = chart_colors(self.config_service.settings)
+        used, limit, percentage = context_values(session)
         self.context_pie_view.set_values(used, limit)
-        self.context_pie_view.set_title("Context")
+        if limit is None:
+            self.context_pie_view.set_title("Context (limit unknown)")
+        elif percentage is None:
+            self.context_pie_view.set_title("Context")
+        else:
+            self.context_pie_view.set_title(f"Context ({percentage:.1f}%)")
+        self.context_pie_view.set_colors(colors["used"], colors["free"], colors["text"])
 
     def _update_trend_chart(self, session) -> None:
+        colors = chart_colors(self.config_service.settings)
         self.trend_chart_view.clear()
+        self.trend_chart_view.setBackground(colors["background"])
         points = context_trend_points(self.metric_history.samples(session.id))
+        self.trend_chart_view.clear()
+        self.trend_chart_view.setBackground(colors["background"])
         if points:
             xs = [point[0] for point in points]
             ys = [point[1] for point in points]
-            self.trend_chart_view.plot(xs, ys, pen=pg.mkPen("#2563eb", width=2), symbol="o", symbolBrush="#2563eb")
-        self.trend_chart_view.setTitle("Context trend (%)")
-        self.trend_chart_view.showGrid(x=True, y=True, alpha=0.3)
-        self.trend_chart_view.setLabel("left", "Percent")
+            self.trend_chart_view.plot(
+                xs,
+                ys,
+                pen=pg.mkPen(colors["primary"], width=2),
+                shadowPen=pg.mkPen(colors["primary"] + "66", width=6),
+                symbol="o",
+                symbolBrush=colors["primary"],
+                symbolPen=colors["primary"],
+            )
+            self.trend_status_label.setText("")
+        else:
+            self.trend_status_label.setText("Context trend unavailable (no percentage data).")
+        self.trend_chart_view.setTitle("Context trend (%)", color=colors["text"])
+        self.trend_chart_view.showGrid(x=True, y=True, alpha=0.15)
+        self.trend_chart_view.setLabel("left", "Percent", color=colors["text"])
+        self.trend_chart_view.setLabel("bottom", "Time", color=colors["text"])
         self.trend_chart_view.setYRange(0, 100)
+        for name in ("left", "bottom"):
+            self.trend_chart_view.getAxis(name).setTextPen(pg.mkPen(colors["text"]))
+            self.trend_chart_view.getAxis(name).setPen(pg.mkPen(colors["grid"]))
+
+    def _apply_chart_theme(self) -> None:
+        colors = chart_colors(self.config_service.settings)
+        self.trend_chart_view.setBackground(colors["background"])
+        self.compact_chart_view.set_colors(colors["used"], colors["free"], colors["text"])
+        self.context_pie_view.set_colors(colors["used"], colors["free"], colors["text"])
+        self.token_stats_label.setStyleSheet(f"color: {colors['text']};")
+        self.cost_label.setStyleSheet(f"color: {colors['text']};")
+        self.trend_status_label.setStyleSheet(f"color: {colors['text']};")
+
+    def _apply_glow_effects(self) -> None:
+        settings = self.config_service.settings
+        cards = []
+        for child in self.findChildren(CardFrame):
+            cards.append(child)
+        for card in cards:
+            apply_glow(card, settings)
+        for widget in (self.compact_chart_view, self.context_pie_view, self.trend_chart_view):
+            apply_glow(widget, settings)
+        if settings.theme_mode != "neon":
+            for button in (self.refresh_button, self.mode_button, self.save_config_button):
+                button.setGraphicsEffect(None)
+
+    def _setup_shortcuts(self) -> None:
+        refresh_shortcut = QShortcut(QKeySequence("Ctrl+R"), self)
+        refresh_shortcut.activated.connect(self._refresh)
+        mode_shortcut = QShortcut(QKeySequence("Ctrl+M"), self)
+        mode_shortcut.activated.connect(self._toggle_mode)
 
     def _clear_charts(self) -> None:
-        self.token_chart_view.clear()
         self.trend_chart_view.clear()
         self.compact_chart_view.set_values(None, None)
         self.context_pie_view.set_values(None, None)
+        self.token_stats_label.setText("Tokens: -")
+        self.cost_label.setText("Cost: -")
+        self.trend_status_label.setText("")
 
     def closeEvent(self, event) -> None:  # type: ignore[override]
         settings = self.config_service.settings

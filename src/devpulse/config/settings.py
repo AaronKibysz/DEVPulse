@@ -8,8 +8,8 @@ from typing import List, Optional
 class Settings:
     visible_metrics: List[str] = field(default_factory=lambda: ["model", "tokens", "context", "cost"])
     compact_mode: bool = True
-    window_width: int = 420
-    window_height: int = 320
+    window_width: int = 300
+    window_height: int = 220
     window_x: Optional[int] = None
     window_y: Optional[int] = None
     refresh_interval_seconds: int = 10
@@ -20,6 +20,11 @@ class Settings:
     cache_sensitive_data: bool = True
     sensitive_logs_authorized: bool = False
     sensitive_log_pin_hash: Optional[str] = None
+    theme_mode: str = "neon"
+    accent_color: str = "#ff00ff"
+    glow_strength: str = "strong"
+    font_size: str = "medium"
+    reduce_motion: bool = False
 
     @classmethod
     def default(cls) -> "Settings":

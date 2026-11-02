@@ -64,8 +64,12 @@
 - [x] Ocultar consolas de subprocesos en Windows.
 - [x] Añadir gráfico de torta con porcentaje numérico.
 
-## Fase 1 � UX y empaquetado
+## Fase 1 � UX y empaquetado
 
 - [x] Implementar modo compacto/expandido.
 - [x] Implementar bandeja del sistema.
 - [x] Crear spec y script de empaquetado con PyInstaller.
+- [x] Implementar tema clásico/neon configurable.
+- [x] Rediseñar la interfaz con cards y jerarquía visual.
+- [x] Añadir animaciones sutiles y accesibilidad básica.
+

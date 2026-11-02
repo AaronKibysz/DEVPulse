@@ -56,6 +56,8 @@ DevPulse busca proporcionar esa visibilidad sin interrumpir el flujo de trabajo 
 - Fuente híbrida HTTP/CLI con fallback automático.
 - Visualización avanzada con gráficos e historial temporal en memoria.
 - Gráfico de torta con porcentaje numérico.
+- Tema clásico/neon configurable con glow y tamaños de fuente.
+- Rediseño de interfaz con cards, animaciones sutiles y accesibilidad básica.
 - Pruebas básicas e integración marcada.
 
 ## Tecnologías seleccionadas

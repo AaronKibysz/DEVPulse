@@ -9,7 +9,7 @@
 - Sin cuentas, nube ni sincronización en v1.
 
 ## Estado actual
-Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualización avanzada y fuente CLI implementadas. 31 pruebas pasando, 1 omitida.
+Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualización avanzada, fuente CLI, tema neon/clásico, rediseño de interfaz, animaciones sutiles y accesibilidad básica implementados. 31 pruebas pasando, 1 omitida.
 
 ## Logros verificados
 - Entorno inspeccionado.
@@ -21,6 +21,8 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualiz
 - Disponibilidad de métricas documentada.
 - Stack aprobado y documentado.
 - Visualización avanzada con historial temporal en memoria.
+- Tema neon/clásico configurable con glow, tipografía y accesibilidad básica.
+- Rediseño profundo de la interfaz con cards y animaciones sutiles.
 
 ## Próximos pasos
 1. Validar la integración real en Windows.
@@ -40,4 +42,4 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualiz
 - Detección de múltiples instancias no verificada.
 
 ## Última actualización
-2026-10-30: documentación alineada con el código existente y pruebas verificadas.
+2026-11-01: tema neon, rediseño de interfaz, animaciones y accesibilidad implementados; pruebas verificadas.

@@ -9,6 +9,9 @@ class PieChartWidget(QWidget):
         self._used = 0
         self._limit = 0
         self._title = "Context"
+        self._used_color = QColor("#2563eb")
+        self._free_color = QColor("#94a3b8")
+        self._text_color = QColor("#111827")
         self.setMinimumHeight(120)
 
     def set_values(self, used: int | None, limit: int | None) -> None:
@@ -18,6 +21,12 @@ class PieChartWidget(QWidget):
 
     def set_title(self, title: str) -> None:
         self._title = title
+        self.update()
+
+    def set_colors(self, used_color: str, free_color: str, text_color: str) -> None:
+        self._used_color = QColor(used_color)
+        self._free_color = QColor(free_color)
+        self._text_color = QColor(text_color)
         self.update()
 
     def paintEvent(self, event) -> None:  # type: ignore[override]
@@ -41,26 +50,26 @@ class PieChartWidget(QWidget):
             used_angle = int(360 * 16 * self._used / self._limit)
             free_angle = 360 * 16 - used_angle
             painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor("#2563eb"))
+            painter.setBrush(self._used_color)
             painter.drawPie(pie_rect, 90 * 16, -used_angle)
-            painter.setBrush(QColor("#94a3b8"))
+            painter.setBrush(self._free_color)
             painter.drawPie(pie_rect, 90 * 16 - used_angle, -free_angle)
             percentage = (self._used / self._limit) * 100
             text = f"{percentage:.1f}%"
         else:
             painter.setPen(Qt.NoPen)
-            painter.setBrush(QColor("#94a3b8"))
+            painter.setBrush(self._free_color)
             painter.drawPie(pie_rect, 0, 360 * 16)
             text = "n/a"
 
-        painter.setPen(QPen(QColor("#111827")))
+        painter.setPen(QPen(self._text_color))
         font = QFont()
         font.setBold(True)
         font.setPointSize(12)
         painter.setFont(font)
         painter.drawText(rect, Qt.AlignCenter, text)
 
-        painter.setPen(QPen(QColor("#374151")))
+        painter.setPen(QPen(self._text_color))
         small_font = QFont()
         small_font.setPointSize(9)
         painter.setFont(small_font)
