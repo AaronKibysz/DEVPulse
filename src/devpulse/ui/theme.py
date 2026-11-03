@@ -5,6 +5,23 @@ from PySide6.QtGui import QColor, QFont, QPalette
 from PySide6.QtWidgets import QApplication, QWidget, QGraphicsDropShadowEffect
 
 
+# --- Paleta de colores centralizada ---
+COLORS = {
+    "bg_primary": "#080B16",
+    "bg_secondary": "#101629",
+    "bg_card": "#151B30",
+    "bg_elevated": "#1B223A",
+    "violet": "#A855F7",
+    "violet_secondary": "#C026D3",
+    "blue": "#3B82F6",
+    "green": "#22C55E",
+    "yellow": "#FACC15",
+    "red": "#EF4444",
+    "text_primary": "#F8FAFC",
+    "text_secondary": "#A5B0C5",
+    "border": "#303956",
+}
+
 FONT_SIZES = {"small": 9, "medium": 11, "large": 13}
 GLOW_RADII = {"subtle": 8, "medium": 16, "strong": 28}
 ACCENT_PRESETS = {
@@ -12,6 +29,10 @@ ACCENT_PRESETS = {
     "cyan": "#00f5ff",
     "green": "#39ff14",
 }
+
+
+def get_color(name: str) -> str:
+    return COLORS.get(name, "#FFFFFF")
 
 
 def normalize_accent(color: str) -> str:
@@ -49,15 +70,15 @@ def classic_palette() -> QPalette:
 def neon_palette(accent: str) -> QPalette:
     accent_color = QColor(normalize_accent(accent))
     palette = QPalette()
-    palette.setColor(QPalette.Window, QColor("#070a14"))
-    palette.setColor(QPalette.WindowText, QColor("#f2f5ff"))
-    palette.setColor(QPalette.Base, QColor("#050816"))
-    palette.setColor(QPalette.AlternateBase, QColor("#0b1020"))
-    palette.setColor(QPalette.Text, QColor("#f2f5ff"))
-    palette.setColor(QPalette.Button, QColor("#0b1020"))
+    palette.setColor(QPalette.Window, QColor(COLORS["bg_primary"]))
+    palette.setColor(QPalette.WindowText, QColor(COLORS["text_primary"]))
+    palette.setColor(QPalette.Base, QColor(COLORS["bg_primary"]))
+    palette.setColor(QPalette.AlternateBase, QColor(COLORS["bg_secondary"]))
+    palette.setColor(QPalette.Text, QColor(COLORS["text_primary"]))
+    palette.setColor(QPalette.Button, QColor(COLORS["bg_card"]))
     palette.setColor(QPalette.ButtonText, accent_color)
     palette.setColor(QPalette.Highlight, accent_color)
-    palette.setColor(QPalette.HighlightedText, QColor("#050816"))
+    palette.setColor(QPalette.HighlightedText, QColor(COLORS["bg_primary"]))
     return palette
 
 
@@ -66,15 +87,15 @@ def chart_colors(settings) -> Dict[str, str]:
     secondary = secondary_accent(accent)
     if getattr(settings, "theme_mode", "classic") == "neon":
         return {
-            "background": "#0b1020",
-            "text": "#f2f5ff",
-            "grid": accent + "33",
-            "primary": accent,
-            "secondary": secondary,
-            "tertiary": "#39ff14",
-            "muted": "#1a1a2e",
-            "used": accent,
-            "free": "#1a1a2e",
+            "background": "#101629",
+            "text": "#F8FAFC",
+            "grid": "#303956",
+            "primary": "#A855F7",
+            "secondary": "#3B82F6",
+            "tertiary": "#22C55E",
+            "muted": "#151B30",
+            "used": "#A855F7",
+            "free": "#1B223A",
         }
     return {
         "background": "#f8fafc",
@@ -96,14 +117,57 @@ def neon_stylesheet(accent: str, glow_strength: str, font_size: str) -> str:
     radius = GLOW_RADII.get(glow_strength, 28)
     return f"""
     QWidget {{
-        background-color: #070a14;
-        color: #f2f5ff;
+        background-color: {COLORS["bg_primary"]};
+        color: {COLORS["text_primary"]};
         font-size: {size}px;
     }}
     QFrame[card="true"] {{
-        background-color: #0b1020;
-        border: 1px solid {accent}66;
-        border-radius: 12px;
+        background-color: {COLORS["bg_card"]};
+        border: 1px solid {COLORS["border"]};
+        border-radius: 14px;
+    }}
+    QPushButton {{
+        background-color: {COLORS["bg_elevated"]};
+        color: {COLORS["violet"]};
+        border: 1px solid {COLORS["border"]};
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 600;
+    }}
+    QPushButton:hover {{
+        background-color: {COLORS["violet"]}22;
+        color: {COLORS["text_primary"]};
+    }}
+    QPushButton:pressed {{
+        background-color: {COLORS["violet"]}44;
+    }}
+    QLineEdit, QComboBox, QSpinBox, QPlainTextEdit {{
+        background-color: {COLORS["bg_secondary"]};
+        color: {COLORS["text_primary"]};
+        border: 1px solid {COLORS["border"]};
+        border-radius: 8px;
+        padding: 4px 6px;
+    }}
+    QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QPlainTextEdit:focus {{
+        border: 2px solid {COLORS["violet"]};
+    }}
+    QLabel {{
+        color: {COLORS["text_primary"]};
+    }}
+    QProgressBar {{
+        background-color: {COLORS["bg_elevated"]};
+        border: 1px solid {COLORS["border"]};
+        border-radius: 6px;
+        text-align: center;
+        color: {COLORS["text_primary"]};
+    }}
+    QProgressBar::chunk {{
+        background-color: {COLORS["violet"]};
+        border-radius: 5px;
+    }}
+    QScrollArea {{
+        background-color: transparent;
+        border: none;
     }}
     QPushButton {{
         background-color: transparent;

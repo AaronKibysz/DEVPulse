@@ -71,7 +71,7 @@ Los comandos reales de instalación, desarrollo, pruebas y compilación se docum
 
 No registrar comandos como verificados hasta haberlos ejecutado.
 
-Comando verificado: `python -m pytest` (10 pruebas pasando, 1 omitida).
+Comando verificado: `python -m pytest` (31 pruebas pasando, 1 omitida).
 
 ## Al terminar cualquier tarea
 

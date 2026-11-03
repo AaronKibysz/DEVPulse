@@ -1,5 +1,7 @@
+import json
+import subprocess
 import time
-from typing import Optional
+from typing import Any, Optional
 
 from devpulse.application.monitor_service import MonitorService
 from devpulse.domain.models import ContextMetrics
@@ -16,7 +18,7 @@ _HTTP_CACHE_SECONDS = 300.0
 
 
 class RefreshWorker(QThread):
-    finished = Signal(object, object, object, object)
+    finished = Signal(object, object, object, object, object)
 
     def __init__(
         self,
@@ -38,7 +40,7 @@ class RefreshWorker(QThread):
             instances = service.detect()
             if not instances:
                 logger.info("No OpenCode instance detected")
-                self.finished.emit([], [], None, "No OpenCode instance detected")
+                self.finished.emit([], [], None, "No OpenCode instance detected", None)
                 return
             instance = self._select_instance(instances)
             sessions = service.sessions(instance)
@@ -50,11 +52,41 @@ class RefreshWorker(QThread):
                 except Exception as exc:  # noqa: BLE001
                     logger.warning("Context calculation failed for %s: %s", session.id, exc)
                     session.context_metrics = ContextMetrics(source="unavailable")
+            usage = self._service_usage() or {}
+            try:
+                limits = integration.get_usage_limits()
+            except Exception:  # noqa: BLE001
+                limits = {}
+            if limits:
+                usage["limits"] = limits
             logger.info("Refreshed %d sessions from %s", len(sessions), instance.id)
-            self.finished.emit(instances, sessions, instance.id, None)
+            self.finished.emit(instances, sessions, instance.id, None, usage)
         except Exception as exc:  # noqa: BLE001
             logger.warning("Refresh failed: %s", exc)
-            self.finished.emit([], [], None, str(exc))
+            self.finished.emit([], [], None, str(exc), None)
+
+    def _service_usage(self) -> Optional[dict[str, Any]]:
+        try:
+            result = subprocess.run(
+                ["opencode", "stats", "--json"],
+                capture_output=True,
+                text=True,
+                encoding="utf-8-sig",
+                timeout=10.0,
+                creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+                check=False,
+            )
+        except (OSError, subprocess.SubprocessError):
+            return None
+        if result.returncode != 0:
+            return None
+        try:
+            data = json.loads(result.stdout[result.stdout.find("{") :])
+        except (ValueError, json.JSONDecodeError):
+            return None
+        if not isinstance(data, dict):
+            return None
+        return data
 
     def _create_integration(self):
         if self.data_source == "cli":

@@ -56,3 +56,6 @@ class OpenCodeClient:
 
     def list_projects(self) -> Any:
         return self._get("/api/project")
+
+    def get_usage_limits(self) -> Dict[str, Any]:
+        return self._get("/api/experimental/usage/limits")

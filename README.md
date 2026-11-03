@@ -6,7 +6,7 @@ DevPulse muestra información relevante sobre sesiones, modelos, tokens, context
 
 ## Estado actual del desarrollo
 
-Proyecto en **Fase 1 avanzada**: existe un esqueleto mínimo de aplicación con PySide6, integración inicial con OpenCode, configuración, almacenamiento local y pruebas básicas.
+Proyecto en **Fase 2 (rediseño integral)**: esqueleto de aplicación con PySide6, integración con OpenCode, configuración, almacenamiento local, pruebas y rediseño visual en progreso (paleta centralizada, componentes reutilizables, iconos QtAwesome).
 
 No hay instalador ni ejecutable distribuible disponible todavía.
 
@@ -58,12 +58,20 @@ DevPulse busca proporcionar esa visibilidad sin interrumpir el flujo de trabajo 
 - Gráfico de torta con porcentaje numérico.
 - Tema clásico/neon configurable con glow y tamaños de fuente.
 - Rediseño de interfaz con cards, animaciones sutiles y accesibilidad básica.
+- Formato discreto: ventana sin marco, siempre encima, arrastrable y restricción al área visible.
+- Controles revelados al pasar el mouse y configuración en diálogo independiente.
+- Minimización a bandeja del sistema al cerrar.
+- Gráfico circular modernizado con glow y animaciones.
+- Rediseño visual: paleta centralizada en 	heme.py (COLORS) y QSS actualizado.
+- Componentes reutilizables: ContextProgress, QuotaCard, ContextSummary, ContextChart, SectionHeader, MetricCard.
+- Iconografía con QtAwesome en header y tarjetas.
 - Pruebas básicas e integración marcada.
 
 ## Tecnologías seleccionadas
 
 - **Lenguaje:** Python.
 - **Interfaz gráfica:** PySide6.
+- **Iconografía:** QtAwesome (iconos QtAwesome/FontAwesome).
 - **Almacenamiento local:** SQLite para historial y datos persistentes; archivos locales para preferencias.
 - **Integración con OpenCode:** API HTTP oficial, CLI y eventos cuando estén disponibles.
 - **Pruebas:** pytest.
@@ -145,7 +153,7 @@ Ver `docs/roadmap.md`.
 
 ## Estado actual del desarrollo
 
-Fase 0 en curso: investigación, arquitectura y documentación inicial.
+Fase 2 (rediseño integral): esqueleto funcional con integración OpenCode, visualización avanzada, temas, formato discreto, gráficos modernos y rediseño visual en progreso (paleta, componentes, iconos).
 
 ## Licencia
 

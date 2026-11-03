@@ -62,6 +62,12 @@ class OpenCodeIntegration(IntegrationProvider):
         # Store metrics temporarily on session is not part of model; return session only.
         return session
 
+    def get_usage_limits(self) -> dict:
+        try:
+            return self.client.get_usage_limits()
+        except Exception:  # noqa: BLE001
+            return {}
+
     def _models(self) -> List[dict]:
         response = self.client.list_models()
         if isinstance(response, dict):

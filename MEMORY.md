@@ -9,7 +9,7 @@
 - Sin cuentas, nube ni sincronización en v1.
 
 ## Estado actual
-Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualización avanzada, fuente CLI, tema neon/clásico, rediseño de interfaz, animaciones sutiles y accesibilidad básica implementados. 31 pruebas pasando, 1 omitida.
+Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualización avanzada, fuente CLI, tema neon/clásico, rediseño de interfaz, animaciones sutiles, accesibilidad básica, formato discreto (Spec 003), contexto en CLI y uso del servicio implementados. 31 pruebas pasando, 1 omitida.
 
 ## Logros verificados
 - Entorno inspeccionado.
@@ -23,11 +23,18 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualiz
 - Visualización avanzada con historial temporal en memoria.
 - Tema neon/clásico configurable con glow, tipografía y accesibilidad básica.
 - Rediseño profundo de la interfaz con cards y animaciones sutiles.
+- Formato discreto: ventana sin marco, siempre encima, arrastrable, restricción al área visible, controles por hover, minimización a bandeja.
+- Gráfico circular modernizado con glow y animación.
+- Context Trend simplificado con tiempo relativo.
+- Uso del servicio (tokens/costo) y botón opcional a OpenCode Console.
+- Contexto en modo CLI: export corregido a `session export`, resolución de límites de modelo vía `opencode api`, cálculo de porcentaje cuando es posible.
 
 ## Próximos pasos
 1. Validar la integración real en Windows.
 2. Probar modo compacto/expandido y bandeja del sistema.
 3. Evaluar empaquetado con PyInstaller.
+4. Diseñar mecanismo seguro para credenciales de OpenCode Console.
+5. Investigar cuota restante/reset (API o consola web).
 
 ## Archivos clave
 - `AGENTS.md`
@@ -42,4 +49,19 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualiz
 - Detección de múltiples instancias no verificada.
 
 ## Última actualización
-2026-11-01: tema neon, rediseño de interfaz, animaciones y accesibilidad implementados; pruebas verificadas.
+2026-11-02: formato discreto (Spec 003), gráficos modernos y minimización a bandeja implementados; pruebas verificadas.
+
+## Rediseño integral (Etapa 1-2 parcial)
+
+- QtAwesome instalado. Paleta centralizada en theme.py (COLORS).
+- Componentes: SectionHeader, MetricCard, ContextProgress, QuotaCard, ContextSummary, ContextChart.
+- MainWindow: context_ring=ContextProgress, context_summary, quota_card=QuotaCard, trend_chart=ContextChart.
+- Data-binding actualizado. Tests: 31 passed, 1 skipped.
+
+## Rediseño completo (Etapa 3-6)
+
+- Estado de conexion con icono y color.
+- Tarjetas secundarias con iconos QtAwesome.
+- Top bar con iconos.
+- Config dialog con icono.
+- Tests: 31 passed, 1 skipped. App sin errores.

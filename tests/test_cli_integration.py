@@ -33,6 +33,10 @@ def test_cli_list_sessions_maps_export(monkeypatch) -> None:
     }
 
     def fake_run(args, *_, **__):
+        if "service" in args:
+            return _completed("", returncode=1)
+        if "api" in args:
+            return _completed("[]")
         if "list" in args:
             return _completed(json.dumps(session_list))
         if "export" in args:

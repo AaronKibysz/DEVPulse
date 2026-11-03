@@ -73,3 +73,49 @@
 - [x] Rediseñar la interfaz con cards y jerarquía visual.
 - [x] Añadir animaciones sutiles y accesibilidad básica.
 
+## Fase 1 — Formato discreto (Spec 003)
+
+- [x] Crear Spec 003 y aprobarla.
+- [x] Crear plan técnico Spec 003.
+- [x] Implementar ventana sin marco y siempre encima.
+- [x] Implementar arrastre restringido al área visible.
+- [x] Reducir tamaño por defecto a 260x190 en modo compacto.
+- [x] Mover configuración a diálogo accesible desde control discreto.
+- [x] Revelar/ocultar controles al pasar el mouse.
+- [x] Minimizar a bandeja al cerrar.
+- [x] Modernizar gráfico circular con glow y animación.
+- [x] Corregir export CLI y habilitar contexto/porcentaje en modo CLI.
+- [x] Simplificar Context Trend (tiempo relativo) y añadir uso del servicio (tokens/costo).
+- [x] Mejorar visualización de Context Trend (área, marcadores, leyenda).
+- [x] Añadir gráfico de tokens (input/output, por muestra/acumulado).
+- [x] Añadir botón opcional a OpenCode Console (sin credenciales).
+- [x] Verificar pruebas y ejecución.
+
+## Trabajo futuro
+
+- [ ] Integrar cuota restante y fecha de reseteo si la API o la consola web lo exponen.
+- [ ] Definir mecanismo seguro para almacenar credenciales de OpenCode Console (cifrado).
+- [ ] Evaluar automatización segura del acceso a la consola (scraping) con consentimiento explícito.
+- [ ] Mostrar cantidad de prompts usados cuando se decida incluirla.
+- [ ] Evaluar QtCharts si pyqtgraph/Painter resultan insuficientes.
+
+## Fase 2 - Rediseño integral (en progreso)
+
+- [x] Instalar QtAwesome y añadir a pyproject.toml.
+- [x] Centralizar paleta en theme.py (COLORS).
+- [x] Actualizar QSS global.
+- [x] Crear SectionHeader, MetricCard.
+- [x] Crear ContextProgress.
+- [x] Crear QuotaCard.
+- [x] Crear ContextSummary.
+- [x] Crear ContextChart.
+- [x] Integrar en MainWindow.
+- [ ] Etapa 3-6 pendientes.
+
+- [x] Etapa 3 parcial: iconos QtAwesome en header y botones.
+- [x] Etapa 4 parcial: icono en widget compacto.
+
+- [x] Etapa 3 completa: estado de conexion, iconos en tarjetas, top bar.
+- [x] Etapa 4 completa: widget compacto.
+- [x] Etapa 5 parcial: dialogo de config con icono.
+- [x] Etapa 6: validacion y tests (31 passed).

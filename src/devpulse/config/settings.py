@@ -8,8 +8,8 @@ from typing import List, Optional
 class Settings:
     visible_metrics: List[str] = field(default_factory=lambda: ["model", "tokens", "context", "cost"])
     compact_mode: bool = True
-    window_width: int = 300
-    window_height: int = 220
+    window_width: int = 260
+    window_height: int = 190
     window_x: Optional[int] = None
     window_y: Optional[int] = None
     refresh_interval_seconds: int = 10
@@ -36,7 +36,18 @@ class Settings:
             return cls.default()
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
-            return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+            instance = cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
+            # Clamp window size to sane defaults
+            if instance.window_width < 100 or instance.window_width > 800:
+                instance.window_width = 260
+            if instance.window_height < 80 or instance.window_height > 800:
+                instance.window_height = 190
+            # Clamp position: if off-screen, reset to None (centered by OS)
+            if instance.window_x is not None and (instance.window_x < -100 or instance.window_x > 4000):
+                instance.window_x = None
+            if instance.window_y is not None and (instance.window_y < -100 or instance.window_y > 4000):
+                instance.window_y = None
+            return instance
         except (json.JSONDecodeError, TypeError, ValueError):
             return cls.default()
 

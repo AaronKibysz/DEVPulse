@@ -2,6 +2,8 @@ import json
 import os
 import shutil
 import subprocess
+
+import httpx
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -21,6 +23,8 @@ class OpenCodeCliIntegration(IntegrationProvider):
         self.working_directory = working_directory or os.getcwd()
         self.max_sessions = max_sessions
         self._export_cache: dict[tuple[str, int], dict[str, Any]] = {}
+        self._model_limits_cache: dict[tuple[str, str], int] | None = None
+        self._model_limits_url: str | None = None
 
     def _executable(self) -> str:
         cmd_path = shutil.which("opencode")
@@ -72,12 +76,51 @@ class OpenCodeCliIntegration(IntegrationProvider):
         cached = self._export_cache.get(cache_key)
         if cached is not None:
             return cached
-        output = self._run(["export", session_id])
+        output = self._run(["session", "export", session_id])
         data = self._json_from_output(output)
         if not isinstance(data, dict):
             raise IntegrationError("Unexpected OpenCode export")
         self._export_cache[cache_key] = data
         return data
+
+    def _server_url(self) -> str | None:
+        try:
+            output = self._run(["service", "status"])
+        except IntegrationError:
+            return None
+        for token in output.split():
+            if token.startswith("http://") or token.startswith("https://"):
+                return token.rstrip("/")
+        return None
+
+    def _load_model_limits(self) -> dict[tuple[str, str], int]:
+        if self._model_limits_cache is not None:
+            return self._model_limits_cache
+        try:
+            output = self._run(["api", "GET", "/api/model"])
+            payload = self._json_from_output(output)
+        except IntegrationError:
+            return {}
+        items = payload.get("data", []) if isinstance(payload, dict) else payload if isinstance(payload, list) else []
+        result: dict[tuple[str, str], int] = {}
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            provider = item.get("providerID")
+            model_id = item.get("id") or item.get("modelID")
+            limit = (item.get("limit") or {}).get("context")
+            if provider and model_id and isinstance(limit, int):
+                result[(str(provider), str(model_id))] = limit
+        self._model_limits_cache = result
+        return result
+
+    def _resolve_model_limit(self, model) -> None:
+        if model is None or getattr(model, "context_limit", None) is not None:
+            return
+        limits = self._load_model_limits()
+        key = (getattr(model, "provider_id", ""), getattr(model, "id", ""))
+        if key in limits:
+            model.context_limit = limits[key]
 
     def detect_instances(self) -> List[Instance]:
         self._executable()
@@ -95,6 +138,7 @@ class OpenCodeCliIntegration(IntegrationProvider):
                 data = self._export(session_id, int(item.get("updated", 0) or 0))
                 info = data.get("info", {}) if isinstance(data, dict) else {}
                 model = map_model(info.get("model")) if isinstance(info.get("model"), dict) else None
+                self._resolve_model_limit(model)
                 session = map_session(info if info else item, model)
                 session.tokens = map_token_usage(info.get("tokens"))
                 sessions.append(session)
@@ -125,6 +169,7 @@ class OpenCodeCliIntegration(IntegrationProvider):
         data = self._export(session_id, 0)
         info = data.get("info", {}) if isinstance(data, dict) else {}
         model = map_model(info.get("model")) if isinstance(info.get("model"), dict) else None
+        self._resolve_model_limit(model)
         session = map_session(info, model)
         session.tokens = map_token_usage(info.get("tokens"))
         return session
@@ -137,13 +182,26 @@ class OpenCodeCliIntegration(IntegrationProvider):
         messages = data.get("messages", []) if isinstance(data, dict) else []
         result: List[dict] = []
         for message in messages:
-            info = message.get("info", {}) if isinstance(message, dict) else {}
-            role = info.get("role")
+            if not isinstance(message, dict):
+                continue
+            info = message.get("info", {}) if isinstance(message.get("info"), dict) else {}
+            role = info.get("role") or message.get("type") or message.get("role")
             if role not in {"user", "assistant"}:
                 continue
             msg_type = "assistant" if role == "assistant" else "user"
-            result.append({"type": msg_type, "tokens": info.get("tokens")})
+            tokens = info.get("tokens") if info.get("tokens") is not None else message.get("tokens")
+            result.append({"type": msg_type, "tokens": tokens})
         return result
 
     def get_context_metrics(self, session: Session) -> ContextMetrics:
         return ContextMetrics(source="unavailable")
+
+    def get_usage_limits(self) -> dict:
+        try:
+            output = self._run(["api", "GET", "/api/experimental/usage/limits"])
+            data = self._json_from_output(output)
+            if isinstance(data, dict):
+                return data.get("data", data)
+            return {}
+        except IntegrationError:
+            return {}

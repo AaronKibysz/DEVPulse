@@ -32,4 +32,6 @@ docs/specs/
 
 ## Estado actual
 
-No hay especificaciones aprobadas todavía.
+- Spec 001: Integración con OpenCode y métricas básicas — aprobada (ver `docs/plans/001-opencode-integration-technical-plan.md`).
+- Spec 002: Visualización avanzada — implementada.
+- Spec 003: Formato discreto, tamaño reducido y gráficos modernos — aprobada (`003-formato-discreto-widget/`).
