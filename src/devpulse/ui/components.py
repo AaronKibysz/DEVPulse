@@ -52,7 +52,7 @@ class ContextProgress(QWidget):
         self._color = QColor(COLORS["violet"])
         self._bg = QColor(COLORS["bg_elevated"])
         self._text_color = QColor(COLORS["text_primary"])
-        self.setMinimumSize(140, 140)
+        self.setMinimumSize(60, 60)
 
     def set_value(self, value: float | None) -> None:
         self._target = max(0.0, min(100.0, value or 0.0))
@@ -119,15 +119,17 @@ class ContextProgress(QWidget):
         painter.setPen(QPen(self._text_color))
         font = QFont()
         font.setBold(True)
-        font.setPointSize(20)
+        font.setPointSize(14)
         painter.setFont(font)
-        painter.drawText(rect, Qt.AlignCenter, f"{self._value:.0f}%")
+        text_rect = QRectF(rect.left(), rect.top(), rect.width(), rect.height() - 12)
+        painter.drawText(text_rect, Qt.AlignCenter, f"{self._value:.0f}%")
 
         # Label
         small_font = QFont()
-        small_font.setPointSize(9)
+        small_font.setPointSize(8)
         painter.setFont(small_font)
-        painter.drawText(rect.adjusted(0, diameter // 2 + 8, 0, 0), Qt.AlignHCenter, self._label)
+        label_rect = QRectF(rect.left(), rect.bottom() - 16, rect.width(), 16)
+        painter.drawText(label_rect, Qt.AlignHCenter | Qt.AlignVCenter, self._label)
         painter.end()
 
 
@@ -200,7 +202,10 @@ class ContextSummary(QWidget):
         if limit:
             self.cap_label.setText(f"Capacidad: {limit:,}")
             self.rem_label.setText(f"Restantes: {max(limit - used, 0):,}")
-            self.avail_label.setText(f"Disponible: {percentage:.1f}%" if percentage is not None else "Disponible: n/a")
+            if percentage is None:
+                self.avail_label.setText("Disponible: n/a")
+            else:
+                self.avail_label.setText(f"Disponible: {max(0.0, 100.0 - percentage):.1f}%")
         else:
             self.cap_label.setText("Capacidad: n/a")
             self.rem_label.setText("Restantes: n/a")

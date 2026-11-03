@@ -27,6 +27,7 @@ from PySide6.QtWidgets import (
     QFormLayout,
     QProgressBar,
     QScrollArea,
+    QSizePolicy,
     QToolButton,
 )
 
@@ -85,35 +86,66 @@ class MainWindow(QWidget):
 
         # Hover timer
         self._hover_timer = QTimer(self)
-        self._hover_timer.setInterval(80)
+        self._hover_timer.setInterval(120)
         self._hover_timer.timeout.connect(self._update_controls_visibility)
         self._hover_timer.start()
 
         # --- Compact widget ---
         self.compact_widget = QWidget()
-        compact_layout = QHBoxLayout(self.compact_widget)
-        compact_layout.setContentsMargins(8, 6, 8, 6)
-        compact_layout.setSpacing(8)
-        self.compact_icon = QLabel()
-        self.compact_icon.setPixmap(qta.icon("fa5s.code", color="#A855F7").pixmap(20, 20))
-        compact_layout.addWidget(self.compact_icon)
-        self.compact_tool = QLabel("OpenCode")
-        compact_layout.addWidget(self.compact_tool)
-        self.compact_model = QLabel("-")
-        compact_layout.addWidget(self.compact_model)
+        self.compact_widget.setMinimumSize(170, 210)
+        compact_layout = QVBoxLayout(self.compact_widget)
+        compact_layout.setContentsMargins(8, 8, 8, 8)
+        compact_layout.setSpacing(20)
+        compact_layout.setAlignment(Qt.AlignCenter)
         self.compact_chart_view = PieChartWidget()
-        self.compact_chart_view.setMinimumSize(60, 60)
-        self.compact_chart_view.setMaximumSize(60, 60)
-        compact_layout.addWidget(self.compact_chart_view)
-        self.compact_context_label = QLabel("0%")
-        self.compact_context_label.setStyleSheet("font-weight: bold;")
-        compact_layout.addWidget(self.compact_context_label)
-        self.compact_quota_label = QLabel("Quota: -")
-        compact_layout.addWidget(self.compact_quota_label)
+        self.compact_chart_view.setMinimumSize(120, 120)
+        self.compact_chart_view.setMaximumSize(120, 120)
+        self.compact_chart_view.set_title("")
+        compact_layout.addWidget(self.compact_chart_view, 0, Qt.AlignCenter)
+        self.compact_quota_bar = QProgressBar()
+        self.compact_quota_bar.setRange(0, 100)
+        self.compact_quota_bar.setValue(0)
+        self.compact_quota_bar.setTextVisible(False)
+        self.compact_quota_bar.setFixedHeight(8)
+        self.compact_quota_bar.setFixedWidth(120)
+        compact_layout.addWidget(self.compact_quota_bar, 0, Qt.AlignCenter)
+        self.compact_quota_label = QLabel("Cuota de uso: 0%")
+        self.compact_quota_label.setStyleSheet("font-size: 10px; color: #A5B0C5;")
+        self.compact_quota_label.setVisible(True)
+        compact_layout.addWidget(self.compact_quota_label, 0, Qt.AlignCenter)
         self.compact_status = QLabel("●")
-        self.compact_status.setStyleSheet("color: #22C55E; font-size: 14px;")
-        compact_layout.addWidget(self.compact_status)
-        compact_layout.addStretch(1)
+        self.compact_status.setStyleSheet("color: #22C55E; font-size: 12px;")
+        compact_layout.addWidget(self.compact_status, 0, Qt.AlignCenter)
+        # Keep legacy labels hidden for compatibility with existing update calls
+        self.compact_icon = QLabel()
+        self.compact_tool = QLabel()
+        self.compact_model = QLabel()
+        self.compact_context_label = QLabel()
+        for w in (self.compact_icon, self.compact_tool, self.compact_model, self.compact_context_label):
+            w.setVisible(False)
+
+        # Compact hover controls (overlay)
+        self.compact_controls = QWidget(self.compact_widget)
+        compact_controls_layout = QHBoxLayout(self.compact_controls)
+        compact_controls_layout.setContentsMargins(6, 4, 6, 4)
+        compact_controls_layout.setSpacing(4)
+        self.compact_mode_btn = QPushButton()
+        self.compact_mode_btn.setIcon(qta.icon("fa5s.expand-arrows-alt", color="#A855F7"))
+        self.compact_mode_btn.setToolTip("Modo")
+        self.compact_mode_btn.clicked.connect(self._toggle_mode)
+        self.compact_config_btn = QPushButton()
+        self.compact_config_btn.setIcon(qta.icon("fa5s.cog", color="#A855F7"))
+        self.compact_config_btn.setToolTip("Configuración")
+        self.compact_config_btn.clicked.connect(self._open_config_dialog)
+        self.compact_refresh_btn = QPushButton()
+        self.compact_refresh_btn.setIcon(qta.icon("fa5s.sync", color="#A855F7"))
+        self.compact_refresh_btn.setToolTip("Actualizar")
+        self.compact_refresh_btn.clicked.connect(self._refresh)
+        for btn in (self.compact_mode_btn, self.compact_config_btn, self.compact_refresh_btn):
+            btn.setFixedSize(28, 28)
+            compact_controls_layout.addWidget(btn)
+        self.compact_controls.setVisible(False)
+        self.compact_controls.raise_()
 
         # --- Top bar (expanded) ---
         self.top_bar = CardFrame()
@@ -140,7 +172,7 @@ class MainWindow(QWidget):
         self.last_updated_icon = QLabel()
         self.last_updated_icon.setPixmap(qta.icon("fa5s.clock", color="#A5B0C5").pixmap(14, 14))
         top_layout.addWidget(self.last_updated_icon)
-        self.last_updated_label = QLabel("Last updated: never")
+        self.last_updated_label = QLabel("Última actualización: nunca")
         top_layout.addWidget(self.last_updated_label)
         top_layout.addStretch(1)
 
@@ -153,15 +185,17 @@ class MainWindow(QWidget):
         self.instance_combo.setEnabled(False)
         self.session_combo = QComboBox()
         self.session_combo.setEnabled(False)
-        self.refresh_button = QPushButton("Refresh")
+        self.refresh_button = QPushButton("Actualizar")
         self.refresh_button.setIcon(qta.icon("fa5s.sync", color="#A855F7"))
-        self.mode_button = QPushButton("Mode")
+        self.mode_button = QPushButton("Modo")
         self.mode_button.setIcon(qta.icon("fa5s.expand-arrows-alt", color="#A855F7"))
-        self.config_button = QPushButton("Config")
+        self.config_button = QPushButton("Configuración")
         self.config_button.setIcon(qta.icon("fa5s.cog", color="#A855F7"))
+        self.console_button = QPushButton("Consola")
+        self.console_button.setIcon(qta.icon("fa5s.external-link-alt", color="#A855F7"))
         self.token_mode_combo = QComboBox()
         self.token_mode_combo.addItems(["Por muestra", "Acumulado"])
-        for w in (self.instance_combo, self.session_combo, self.refresh_button, self.mode_button, self.config_button, self.token_mode_combo):
+        for w in (self.instance_combo, self.session_combo, self.refresh_button, self.mode_button, self.config_button, self.console_button, self.token_mode_combo):
             controls_layout.addWidget(w)
         self.controls_container.setVisible(False)
         top_layout.addWidget(self.controls_container)
@@ -170,7 +204,10 @@ class MainWindow(QWidget):
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
         self.scroll_area.setFrameShape(QFrame.NoFrame)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.content_widget = QWidget()
+        self.content_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.content_layout = QVBoxLayout(self.content_widget)
         self.content_layout.setContentsMargins(10, 10, 10, 10)
         self.content_layout.setSpacing(12)
@@ -226,11 +263,14 @@ class MainWindow(QWidget):
         charts_layout.addWidget(self.trend_chart_view)
         self.token_trend_chart_view = pg.PlotWidget()
         self.token_trend_chart_view.setMinimumHeight(180)
+        self.token_trend_chart_view.setMouseEnabled(x=False, y=False)
+        self.token_trend_chart_view.setMenuEnabled(False)
         charts_layout.addWidget(self.token_trend_chart_view)
         self.trend_status_label = QLabel("")
         self.trend_status_label.setWordWrap(True)
         charts_layout.addWidget(self.trend_status_label)
         self.content_layout.addWidget(self.charts_card)
+        self.charts_card.setVisible(False)
 
         # Secondary cards row
         secondary_row = QHBoxLayout()
@@ -241,10 +281,10 @@ class MainWindow(QWidget):
         tokens_layout.setContentsMargins(12, 12, 12, 12)
         tokens_layout.setSpacing(4)
         tokens_layout.addWidget(SectionHeader("Tokens por tipo", "fa5s.coins"))
-        self.tokens_in_label = QLabel("Input: -")
-        self.tokens_out_label = QLabel("Output: -")
-        self.tokens_cache_label = QLabel("Cache: -")
-        self.tokens_reasoning_label = QLabel("Reasoning: -")
+        self.tokens_in_label = QLabel("Entrada: -")
+        self.tokens_out_label = QLabel("Salida: -")
+        self.tokens_cache_label = QLabel("Caché: -")
+        self.tokens_reasoning_label = QLabel("Razonamiento: -")
         for lbl in (self.tokens_in_label, self.tokens_out_label, self.tokens_cache_label, self.tokens_reasoning_label):
             tokens_layout.addWidget(lbl)
         tokens_layout.addStretch(1)
@@ -326,11 +366,13 @@ class MainWindow(QWidget):
         self.root_layout = QVBoxLayout(self)
         self.root_layout.setContentsMargins(0, 0, 0, 0)
         self.root_layout.setSpacing(0)
+        self.scroll_area.setVisible(True)
         self.root_layout.addWidget(self.compact_widget)
         self.root_layout.addWidget(self.top_bar)
         self.root_layout.addWidget(self.scroll_area, 1)
         self.footer_label = QLabel("")
         self.footer_label.setWordWrap(True)
+        self.footer_label.setVisible(False)
         self.root_layout.addWidget(self.footer_label)
 
         # Connections
@@ -339,11 +381,13 @@ class MainWindow(QWidget):
         self.instance_combo.currentIndexChanged.connect(self._on_instance_selected)
         self.session_combo.currentIndexChanged.connect(self._on_session_selected)
         self.config_button.clicked.connect(self._open_config_dialog)
+        self.console_button.clicked.connect(self._open_console)
         self.token_mode_combo.currentIndexChanged.connect(self._on_token_mode_changed)
         self.time_filter_combo.currentIndexChanged.connect(self._on_time_filter_changed)
         self.quota_open_btn.clicked.connect(self._open_usage_page)
         self.tech_toggle.toggled.connect(self.tech_details.setVisible)
         self.quota_page_btn = self.quota_open_btn
+        self.usage_page_button = self.quota_open_btn
 
         self.worker: RefreshWorker | None = None
         self._refresh_interval = settings.refresh_interval_seconds * 1000
@@ -379,10 +423,42 @@ class MainWindow(QWidget):
 
     # --- Hover ---
     def _update_controls_visibility(self) -> None:
-        visible = self.underMouse()
+        compact = self.config_service.settings.compact_mode
+        # Keep controls visible while interacting with combos or popups
+        interacting = False
+        if not compact:
+            interacting = (
+                self.instance_combo.hasFocus()
+                or self.session_combo.hasFocus()
+                or (self.instance_combo.view() is not None and self.instance_combo.view().isVisible())
+                or (self.session_combo.view() is not None and self.session_combo.view().isVisible())
+                or QApplication.activePopupWidget() is not None
+            )
+        visible = self.underMouse() or interacting
         if visible != self._controls_visible:
             self._controls_visible = visible
-            self.controls_container.setVisible(visible)
+            if compact:
+                self.compact_controls.setVisible(visible)
+                if visible:
+                    self._position_compact_controls()
+            else:
+                self.controls_container.setVisible(visible)
+
+    def _position_compact_controls(self) -> None:
+        if not hasattr(self, "compact_controls"):
+            return
+        cw = self.compact_widget
+        oc = self.compact_controls
+        oc.adjustSize()
+        x = max(0, cw.width() - oc.width() - 6)
+        y = max(0, cw.height() - oc.height() - 6)
+        oc.move(x, y)
+        oc.raise_()
+
+    def resizeEvent(self, event) -> None:  # type: ignore[override]
+        super().resizeEvent(event)
+        if getattr(self, "compact_controls", None) is not None and self.compact_controls.isVisible():
+            self._position_compact_controls()
 
     # --- Dragging ---
     def mousePressEvent(self, event) -> None:
@@ -480,6 +556,11 @@ class MainWindow(QWidget):
         layout.addLayout(form)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        for btn in buttons.buttons():
+            if btn.text().lower().startswith("save"):
+                btn.setIcon(qta.icon("fa5s.save", color="#A855F7"))
+            elif btn.text().lower().startswith("cancel"):
+                btn.setIcon(qta.icon("fa5s.times", color="#A855F7"))
         layout.addWidget(buttons)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
@@ -613,7 +694,7 @@ class MainWindow(QWidget):
         self.config_service.retry_policy.record_success()
         if hasattr(self, "status_label"):
             self.status_label.setText(f"Status: connected ({len(sessions)} sessions)")
-        self.last_updated_label.setText(f"Last updated: {datetime.now().strftime('%H:%M:%S')}")
+        self.last_updated_label.setText(f"Última actualización: {datetime.now().strftime('%H:%M:%S')}")
         lines = []
         for session in sessions:
             active = "active" if session.active else "inactive"
@@ -746,15 +827,16 @@ class MainWindow(QWidget):
         self.context_pct_label.setText(f"Contexto: {pct_text}")
         self.context_summary.update_values(used, limit, percentage)
         self.context_ring.set_value(percentage if percentage is not None else 0.0)
+        self.context_ring.set_label("Contexto utilizado")
         colors = chart_colors(self.config_service.settings)
         self.context_ring.set_colors(colors["used"], colors["free"], colors["text"])
 
     def _update_secondary_cards(self, session) -> None:
         if session is None:
-            self.tokens_in_label.setText("Input: -")
-            self.tokens_out_label.setText("Output: -")
-            self.tokens_cache_label.setText("Cache: -")
-            self.tokens_reasoning_label.setText("Reasoning: -")
+            self.tokens_in_label.setText("Entrada: -")
+            self.tokens_out_label.setText("Salida: -")
+            self.tokens_cache_label.setText("Caché: -")
+            self.tokens_reasoning_label.setText("Razonamiento: -")
             self.session_count_label.setText("Sesiones activas: -")
             self.session_duration_label.setText("Duración: -")
             self.session_messages_label.setText("Mensajes: -")
@@ -762,10 +844,10 @@ class MainWindow(QWidget):
             self.project_name_label.setText("Proyecto: -")
             self.project_dir_label.setText("Directorio: -")
             return
-        self.tokens_in_label.setText(f"Input: {session.tokens.input:,}")
-        self.tokens_out_label.setText(f"Output: {session.tokens.output:,}")
-        self.tokens_cache_label.setText(f"Cache: {session.tokens.cache_read:,}")
-        self.tokens_reasoning_label.setText(f"Reasoning: {session.tokens.reasoning:,}")
+        self.tokens_in_label.setText(f"Entrada: {session.tokens.input:,}")
+        self.tokens_out_label.setText(f"Salida: {session.tokens.output:,}")
+        self.tokens_cache_label.setText(f"Caché: {session.tokens.cache_read:,}")
+        self.tokens_reasoning_label.setText(f"Razonamiento: {session.tokens.reasoning:,}")
         active_count = sum(1 for s in self.sessions if s.active)
         self.session_count_label.setText(f"Sesiones activas: {active_count}")
         if session.updated_at:
@@ -789,7 +871,8 @@ class MainWindow(QWidget):
             self.quota_card.set_remaining(None)
             self.quota_card.set_renewal("n/a")
             self.quota_card.set_status("No disponible")
-            self.compact_quota_label.setText("Quota: -")
+            self.compact_quota_label.setText("Cuota de uso: 0%")
+            self.compact_quota_bar.setValue(0)
             return
         tokens = usage.get("tokens") or {}
         cache = tokens.get("cache") or {}
@@ -848,7 +931,15 @@ class MainWindow(QWidget):
         else:
             self.quota_card.set_status("Unknown")
         mr = remaining(monthly)
-        self.compact_quota_label.setText(f"Quota: {mr}")
+        self.compact_quota_label.setText("Quota:")
+        monthly_pct = monthly.get("percent")
+        if monthly_pct is None:
+            self.compact_quota_bar.setValue(0)
+            self.compact_quota_label.setText("Cuota de uso: n/a")
+        else:
+            remaining = max(0, 100 - int(monthly_pct))
+            self.compact_quota_bar.setValue(remaining)
+            self.compact_quota_label.setText(f"Cuota de uso: {remaining}%")
 
     def _update_recommendations(self) -> None:
         recs = []
@@ -886,7 +977,7 @@ class MainWindow(QWidget):
         colors = chart_colors(self.config_service.settings)
         used, limit, _percentage = context_values(session)
         self.compact_chart_view.set_values(used, limit)
-        self.compact_chart_view.set_title("Context")
+        self.compact_chart_view.set_title("")
         self.compact_chart_view.set_colors(colors["used"], colors["free"], colors["text"])
         if _percentage is not None:
             self.compact_context_label.setText(f"{_percentage:.0f}%")
@@ -911,13 +1002,19 @@ class MainWindow(QWidget):
             self.trend_chart_view.plot_data(points, color=colors["primary"])
             ys = [p[1] for p in points]
             if ys:
-                self.trend_chart_view.setTitle(f"Context trend (%) - last: {ys[-1]:.1f}%", color=colors["text"])
+                self.trend_chart_view.setTitle(f"Evolución del contexto (%) - último: {ys[-1]:.1f}%", color=colors["text"])
+            # Fix negative axes
+            xs = [p[0] for p in points]
+            if xs:
+                self.trend_chart_view.setXRange(min(xs), max(xs), padding=0.05)
+            if ys:
+                self.trend_chart_view.setYRange(0, max(100, max(ys)), padding=0.05)
             self.trend_status_label.setText("")
         else:
             self.trend_chart_view.clear()
             self.trend_chart_view.setBackground(colors["background"])
-            self.trend_status_label.setText("Context trend unavailable (no percentage data).")
-            self.trend_chart_view.setTitle("Context trend (%)", color=colors["text"])
+            self.trend_status_label.setText("No hay suficientes datos para mostrar la evolución del contexto.")
+            self.trend_chart_view.setTitle("Evolución del contexto (%)", color=colors["text"])
 
     def _update_token_trend_chart(self, session) -> None:
         colors = chart_colors(self.config_service.settings)
@@ -930,7 +1027,7 @@ class MainWindow(QWidget):
             cutoff = now - window
             samples = [s for s in samples if s.timestamp >= cutoff]
         if not samples:
-            self.token_trend_chart_view.setTitle("Tokens (input/output)", color=colors["text"])
+            self.token_trend_chart_view.setTitle("Tokens (entrada/salida)", color=colors["text"])
             self.token_trend_chart_view.showGrid(x=True, y=True, alpha=0.15)
             return
         first = samples[0].timestamp
@@ -961,12 +1058,15 @@ class MainWindow(QWidget):
         base2 = pg.PlotDataItem(xs, [0.0] * len(xs))
         self.token_trend_chart_view.addItem(pg.FillBetweenItem(curve_out, base2, brush=pg.mkBrush(colors["secondary"] + "22")))
         title_suffix = "acumulado" if mode == "Acumulado" else "por muestra"
-        self.token_trend_chart_view.setTitle(f"Tokens (input/output) - {title_suffix}", color=colors["text"])
+        self.token_trend_chart_view.setTitle(f"Tokens (entrada/salida) - {title_suffix}", color=colors["text"])
         self.token_trend_chart_view.showGrid(x=True, y=True, alpha=0.15)
         self.token_trend_chart_view.setLabel("left", "Tokens", color=colors["text"])
         self.token_trend_chart_view.setLabel("bottom", "Minutes", color=colors["text"])
         if xs:
             self.token_trend_chart_view.setXRange(0, max(xs) if max(xs) > 0 else 1, padding=0.05)
+        all_ys = ys_in + ys_out
+        if all_ys:
+            self.token_trend_chart_view.setYRange(0, max(all_ys) if max(all_ys) > 0 else 1, padding=0.05)
         for name in ("left", "bottom"):
             self.token_trend_chart_view.getAxis(name).setTextPen(pg.mkPen(colors["text"]))
             self.token_trend_chart_view.getAxis(name).setPen(pg.mkPen(colors["grid"]))
@@ -1032,7 +1132,7 @@ class MainWindow(QWidget):
         self.compact_widget.setVisible(compact)
         self.top_bar.setVisible(not compact)
         self.scroll_area.setVisible(not compact)
-        target = QSize(260, 190) if compact else QSize(720, 520)
+        target = QSize(160, 190) if compact else QSize(720, 520)
         if self.config_service.settings.reduce_motion:
             self.resize(target)
             return
@@ -1047,13 +1147,7 @@ class MainWindow(QWidget):
     def _setup_tray(self) -> None:
         if not QSystemTrayIcon.isSystemTrayAvailable():
             return
-        pixmap = QPixmap(32, 32)
-        pixmap.fill(QColor("#2563eb"))
-        painter = QPainter(pixmap)
-        painter.setPen(QColor("white"))
-        painter.drawText(pixmap.rect(), Qt.AlignCenter, "D")
-        painter.end()
-        self._tray_icon = QSystemTrayIcon(QIcon(pixmap), self)
+        self._tray_icon = QSystemTrayIcon(qta.icon("fa5s.code", color="#A855F7"), self)
         menu = QMenu(self)
         show_action = QAction("Show", self)
         hide_action = QAction("Hide", self)

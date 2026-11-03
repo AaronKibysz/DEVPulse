@@ -11,6 +11,12 @@ from devpulse.ui.theme import apply_theme
 def main() -> int:
     configure_logging()
     app = QApplication(sys.argv)
+    from pathlib import Path
+    from PySide6.QtGui import QFontDatabase
+
+    font_path = Path(__file__).resolve().parent / "resources" / "fonts" / "InterVariable.ttf"
+    if font_path.exists():
+        QFontDatabase.addApplicationFont(str(font_path))
     config_service = ConfigService()
     apply_theme(app, config_service.settings)
     window = MainWindow(config_service)

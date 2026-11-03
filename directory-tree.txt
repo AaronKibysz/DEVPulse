@@ -1,66 +1,184 @@
-.
-.gitignore
-AGENTS.md
-MEMORY.md
-README.md
-directory-tree.txt
-docs
-docs/architecture.md
-docs/constitution.md
-docs/decisions
-docs/decisions/ADR-001-stack-python-pyside6.md
-docs/research
-docs/research/opencode-api-summary.md
-docs/roadmap.md
-docs/security.md
-docs/specs
-docs/specs/001-opencode-integration
-docs/specs/001-opencode-integration/spec.md
-docs/specs/README.md
-pyproject.toml
-scripts
-scripts/validate_opencode.py
-skills
-skills/spec-generator
-skills/spec-generator/SKILL.md
-skills/spec-generator/spec-template.md
-src
-src/devpulse
-src/devpulse/__init__.py
-src/devpulse/application
-src/devpulse/application/__init__.py
-src/devpulse/application/config_service.py
-src/devpulse/application/monitor_service.py
-src/devpulse/config
-src/devpulse/config/__init__.py
-src/devpulse/config/settings.py
-src/devpulse/domain
-src/devpulse/domain/__init__.py
-src/devpulse/domain/errors.py
-src/devpulse/domain/models.py
-src/devpulse/integrations
-src/devpulse/integrations/__init__.py
-src/devpulse/integrations/base.py
-src/devpulse/integrations/opencode
-src/devpulse/integrations/opencode/__init__.py
-src/devpulse/integrations/opencode/client.py
-src/devpulse/integrations/opencode/integration.py
-src/devpulse/integrations/opencode/mapper.py
-src/devpulse/logging.py
-src/devpulse/main.py
-src/devpulse/storage
-src/devpulse/storage/__init__.py
-src/devpulse/storage/database.py
-src/devpulse/storage/repository.py
-src/devpulse/ui
-src/devpulse/ui/__init__.py
-src/devpulse/ui/main_window.py
-src/devpulse/ui/worker.py
-tasks.md
-tests
-tests/test_client.py
-tests/test_integration_opencode.py
-tests/test_mapper.py
-tests/test_repository.py
-tests/test_settings.py
-tests/test_smoke.py
+﻿
+Listado de rutas de carpetas
+El n·mero de serie del volumen es B4AD-2DFB
+C:.
+|   .gitignore
+|   AGENTS.md
+|   devpulse.spec
+|   directory-tree.txt
+|   MEMORY.md
+|   pyproject.toml
+|   README.md
+|   tasks.md
+|   
++---docs
+|   |   architecture.md
+|   |   constitution.md
+|   |   roadmap.md
+|   |   security.md
+|   |   
+|   +---decisions
+|   |       ADR-001-stack-python-pyside6.md
+|   |       
+|   +---plans
+|   |       001-opencode-integration-technical-plan.md
+|   |       003-formato-discreto-widget-technical-plan.md
+|   |       
+|   +---research
+|   |       opencode-api-summary.md
+|   |       
+|   \---specs
+|       |   README.md
+|       |   
+|       +---001-opencode-integration
+|       |       spec.md
+|       |       
+|       +---002-advanced-visualization
+|       |       spec.md
+|       |       
+|       \---003-formato-discreto-widget
+|               spec.md
+|               tasks.md
+|               
++---scripts
+|   |   build_windows.ps1
+|   |   run_devpulse.ps1
+|   |   start_opencode_server.ps1
+|   |   validate_opencode.py
+|   |   
+|           validate_opencode.cpython-310.pyc
+|           
++---skills
+|   \---spec-generator
+|           SKILL.md
+|           spec-template.md
+|           
++---src
+|   \---devpulse
+|       |   logging.py
+|       |   main.py
+|       |   privacy.py
+|       |   __init__.py
+|       |   
+|       +---application
+|       |   |   config_service.py
+|       |   |   metric_history.py
+|       |   |   monitor_service.py
+|       |   |   __init__.py
+|       |   |   
+|       |           config_service.cpython-310.pyc
+|       |           metric_history.cpython-310.pyc
+|       |           monitor_service.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|       +---config
+|       |   |   opencode_config.py
+|       |   |   settings.py
+|       |   |   __init__.py
+|       |   |   
+|       |           opencode_config.cpython-310.pyc
+|       |           settings.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|       +---domain
+|       |   |   errors.py
+|       |   |   models.py
+|       |   |   __init__.py
+|       |   |   
+|       |           errors.cpython-310.pyc
+|       |           models.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|       +---integrations
+|       |   |   base.py
+|       |   |   __init__.py
+|       |   |   
+|       |   +---opencode
+|       |   |   |   client.py
+|       |   |   |   cli_integration.py
+|       |   |   |   integration.py
+|       |   |   |   mapper.py
+|       |   |   |   __init__.py
+|       |   |   |   
+|       |   |           client.cpython-310.pyc
+|       |   |           cli_integration.cpython-310.pyc
+|       |   |           integration.cpython-310.pyc
+|       |   |           mapper.cpython-310.pyc
+|       |   |           __init__.cpython-310.pyc
+|       |   |           
+|       |           base.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|       +---storage
+|       |   |   database.py
+|       |   |   repository.py
+|       |   |   __init__.py
+|       |   |   
+|       |           database.cpython-310.pyc
+|       |           repository.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|       +---ui
+|       |   |   charts.py
+|       |   |   components.py
+|       |   |   context_chart.py
+|       |   |   main_window.py
+|       |   |   pie_chart.py
+|       |   |   theme.py
+|       |   |   worker.py
+|       |   |   __init__.py
+|       |   |   
+|       |           charts.cpython-310.pyc
+|       |           components.cpython-310.pyc
+|       |           context_chart.cpython-310.pyc
+|       |           main_window.cpython-310.pyc
+|       |           pie_chart.cpython-310.pyc
+|       |           theme.cpython-310.pyc
+|       |           worker.cpython-310.pyc
+|       |           __init__.cpython-310.pyc
+|       |           
+|               logging.cpython-310.pyc
+|               main.cpython-310.pyc
+|               privacy.cpython-310.pyc
+|               __init__.cpython-310.pyc
+|               
+\---tests
+    |   test_charts.py
+    |   test_client.py
+    |   test_cli_integration.py
+    |   test_config.py
+    |   test_integration_opencode.py
+    |   test_mapper.py
+    |   test_metric_history.py
+    |   test_privacy.py
+    |   test_repository.py
+    |   test_settings.py
+    |   test_smoke.py
+    |   test_theme.py
+    |   
+            test_charts.cpython-310-pytest-8.4.2.pyc
+            test_charts.cpython-310.pyc
+            test_client.cpython-310-pytest-8.4.2.pyc
+            test_client.cpython-310.pyc
+            test_cli_integration.cpython-310-pytest-8.4.2.pyc
+            test_cli_integration.cpython-310.pyc
+            test_config.cpython-310-pytest-8.4.2.pyc
+            test_config.cpython-310.pyc
+            test_integration_opencode.cpython-310-pytest-8.4.2.pyc
+            test_integration_opencode.cpython-310.pyc
+            test_mapper.cpython-310-pytest-8.4.2.pyc
+            test_mapper.cpython-310.pyc
+            test_metric_history.cpython-310-pytest-8.4.2.pyc
+            test_metric_history.cpython-310.pyc
+            test_privacy.cpython-310-pytest-8.4.2.pyc
+            test_privacy.cpython-310.pyc
+            test_repository.cpython-310-pytest-8.4.2.pyc
+            test_repository.cpython-310.pyc
+            test_settings.cpython-310-pytest-8.4.2.pyc
+            test_settings.cpython-310.pyc
+            test_smoke.cpython-310-pytest-8.4.2.pyc
+            test_smoke.cpython-310.pyc
+            test_theme.cpython-310-pytest-8.4.2.pyc
+            
+
+

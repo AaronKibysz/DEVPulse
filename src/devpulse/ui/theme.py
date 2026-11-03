@@ -7,22 +7,24 @@ from PySide6.QtWidgets import QApplication, QWidget, QGraphicsDropShadowEffect
 
 # --- Paleta de colores centralizada ---
 COLORS = {
-    "bg_primary": "#080B16",
-    "bg_secondary": "#101629",
-    "bg_card": "#151B30",
-    "bg_elevated": "#1B223A",
+    "bg_primary": "#090B12",
+    "bg_secondary": "#101522",
+    "bg_card": "#151B2A",
+    "bg_elevated": "#1B2335",
+    "bg_hover": "#202A3D",
     "violet": "#A855F7",
-    "violet_secondary": "#C026D3",
-    "blue": "#3B82F6",
+    "violet_secondary": "#C084FC",
+    "blue": "#60A5FA",
     "green": "#22C55E",
-    "yellow": "#FACC15",
+    "yellow": "#F59E0B",
     "red": "#EF4444",
     "text_primary": "#F8FAFC",
     "text_secondary": "#A5B0C5",
-    "border": "#303956",
+    "text_muted": "#77839A",
+    "border": "#29344A",
 }
 
-FONT_SIZES = {"small": 9, "medium": 11, "large": 13}
+FONT_SIZES = {"small": 8, "medium": 10, "large": 12}
 GLOW_RADII = {"subtle": 8, "medium": 16, "strong": 28}
 ACCENT_PRESETS = {
     "magenta": "#ff00ff",
@@ -87,26 +89,26 @@ def chart_colors(settings) -> Dict[str, str]:
     secondary = secondary_accent(accent)
     if getattr(settings, "theme_mode", "classic") == "neon":
         return {
-            "background": "#101629",
+            "background": "#101522",
             "text": "#F8FAFC",
-            "grid": "#303956",
+            "grid": "#29344A",
             "primary": "#A855F7",
-            "secondary": "#3B82F6",
+            "secondary": "#60A5FA",
             "tertiary": "#22C55E",
-            "muted": "#151B30",
+            "muted": "#151B2A",
             "used": "#A855F7",
-            "free": "#1B223A",
+            "free": "#1B2335",
         }
     return {
         "background": "#f8fafc",
         "text": "#111827",
-        "grid": "#94a3b833",
-        "primary": "#2563eb",
-        "secondary": "#94a3b8",
-        "tertiary": "#10b981",
+        "grid": "#cbd5e133",
+        "primary": "#7c3aed",
+        "secondary": "#60a5fa",
+        "tertiary": "#22c55e",
         "muted": "#e5e7eb",
-        "used": "#2563eb",
-        "free": "#94a3b8",
+        "used": "#7c3aed",
+        "free": "#cbd5e1",
     }
 
 
@@ -227,9 +229,12 @@ def neon_stylesheet(accent: str, glow_strength: str, font_size: str) -> str:
         margin: 0;
     }}
     QScrollBar::handle:vertical {{
-        background-color: {accent}66;
+        background-color: #29344A;
         border-radius: 5px;
         min-height: 20px;
+    }}
+    QScrollBar::handle:vertical:hover {{
+        background-color: {accent}99;
     }}
     QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
         height: 0;
@@ -251,12 +256,37 @@ def classic_stylesheet(font_size: str) -> str:
     QPushButton:focus, QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QPlainTextEdit:focus {{
         border: 2px solid #2563eb;
     }}
+    QScrollBar:vertical {{
+        background-color: transparent;
+        width: 8px;
+        margin: 0;
+    }}
+    QScrollBar::handle:vertical {{
+        background-color: #cbd5e1;
+        border-radius: 4px;
+        min-height: 20px;
+    }}
+    QScrollBar::handle:vertical:hover {{
+        background-color: #7c3aed;
+    }}
+    QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {{
+        height: 0;
+    }}
     """
 
 
 def apply_theme(app: QApplication, settings) -> None:
+    from PySide6.QtGui import QFontDatabase
+
     app.setStyle("Fusion")
-    app.setFont(QFont("Segoe UI", FONT_SIZES.get(getattr(settings, "font_size", "medium"), 11)))
+    families = QFontDatabase.families()
+    if "Inter" in families:
+        family = "Inter"
+    elif "Segoe UI" in families:
+        family = "Segoe UI"
+    else:
+        family = app.font().family()
+    app.setFont(QFont(family, FONT_SIZES.get(getattr(settings, "font_size", "medium"), 10)))
     if getattr(settings, "theme_mode", "classic") == "neon":
         app.setPalette(neon_palette(getattr(settings, "accent_color", "#ff00ff")))
         app.setStyleSheet(

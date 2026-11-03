@@ -65,6 +65,7 @@ DevPulse busca proporcionar esa visibilidad sin interrumpir el flujo de trabajo 
 - Rediseño visual: paleta centralizada en 	heme.py (COLORS) y QSS actualizado.
 - Componentes reutilizables: ContextProgress, QuotaCard, ContextSummary, ContextChart, SectionHeader, MetricCard.
 - Iconografía con QtAwesome en header y tarjetas.
+- Refinamiento visual (Spec 004): paleta nueva, modo compacto sin superposición, modo extendido restaurado.
 - Pruebas básicas e integración marcada.
 
 ## Tecnologías seleccionadas
@@ -120,7 +121,7 @@ Pendiente de verificar. Se documentarán cuando exista el proyecto ejecutable.
 
 ## Ejecución de pruebas
 
-Verificado parcialmente. Ejecutar `pytest` desde la raíz del repositorio. Resultado actual: 31 pruebas pasando y 1 omitida.
+Verificado parcialmente. Ejecutar `pytest` desde la raíz del repositorio. Resultado actual: 40 pruebas pasando y 1 omitida.
 
 ## Compilación del instalador
 

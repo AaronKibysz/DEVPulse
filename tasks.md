@@ -110,12 +110,9 @@
 - [x] Crear ContextSummary.
 - [x] Crear ContextChart.
 - [x] Integrar en MainWindow.
-- [ ] Etapa 3-6 pendientes.
-
-- [x] Etapa 3 parcial: iconos QtAwesome en header y botones.
-- [x] Etapa 4 parcial: icono en widget compacto.
 
 - [x] Etapa 3 completa: estado de conexion, iconos en tarjetas, top bar.
 - [x] Etapa 4 completa: widget compacto.
-- [x] Etapa 5 parcial: dialogo de config con icono.
-- [x] Etapa 6: validacion y tests (31 passed).
+- [x] Etapa 5 completa: dialogo de config con iconos, boton Console (opcional) conectado, tray icon con QtAwesome, alias usage_page_button.
+- [x] Etapa 6: validacion y tests (40 passed, 1 skipped); correccion de _apply_glow_effects (AttributeError).
+- [x] Ajustes visuales iterativos: modo compacto sin superposicion, modo extendido restaurado con scroll, paleta nueva, traducciones, optimizaciones.

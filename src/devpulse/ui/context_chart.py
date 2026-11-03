@@ -17,6 +17,10 @@ class ContextChart(pg.PlotWidget):
         self.getAxis("bottom").setTextPen(pg.mkPen(COLORS["text_secondary"]))
         self.getPlotItem().legend = None
         self._legend = self.addLegend(offset=(10, 10))
+        self.setMouseEnabled(x=False, y=False)
+        self.setMenuEnabled(False)
+        self.setMouseEnabled(x=False, y=False)
+        self.setMenuEnabled(False)
 
     def plot_data(self, points: list, color: str = COLORS["violet"]) -> None:
         self.clear()

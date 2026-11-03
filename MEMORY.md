@@ -49,19 +49,22 @@ Fase 1 avanzada. Validación real con OpenCode ejecutada correctamente. Visualiz
 - Detección de múltiples instancias no verificada.
 
 ## Última actualización
-2026-11-02: formato discreto (Spec 003), gráficos modernos y minimización a bandeja implementados; pruebas verificadas.
+2026-11-03: iteraciones visuales finalizadas; modo compacto sin superposicion, modo extendido restaurado con scroll, paleta nueva, traducciones, optimizaciones; pruebas 40 passed, 1 skipped.
 
 ## Rediseño integral (Etapa 1-2 parcial)
 
 - QtAwesome instalado. Paleta centralizada en theme.py (COLORS).
 - Componentes: SectionHeader, MetricCard, ContextProgress, QuotaCard, ContextSummary, ContextChart.
 - MainWindow: context_ring=ContextProgress, context_summary, quota_card=QuotaCard, trend_chart=ContextChart.
-- Data-binding actualizado. Tests: 31 passed, 1 skipped.
+- Data-binding actualizado. Tests: 40 passed, 1 skipped.
 
 ## Rediseño completo (Etapa 3-6)
 
 - Estado de conexion con icono y color.
 - Tarjetas secundarias con iconos QtAwesome.
 - Top bar con iconos.
-- Config dialog con icono.
-- Tests: 31 passed, 1 skipped. App sin errores.
+- Config dialog con iconos en botones.
+- Boton Console (opcional) conectado a _open_console.
+- Tray icon con QtAwesome.
+- Correccion de _apply_glow_effects (referencias inexistentes).
+- Tests: 40 passed, 1 skipped. App sin errores (temas clasico y neon verificados).
